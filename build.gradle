@@ -1,0 +1,35 @@
+buildscript {
+    ext {
+        // Define versions for dependencies that will be used across all modules
+        // https://developer.android.google.cn/jetpack/androidx/releases/compose-kotlin?hl=zh-cn
+        compose_compiler_version = '1.5.10'
+
+        version_code = 40
+        version_name = "3.0.5"
+        compile_sdk = 35
+        min_sdk = 26
+        target_sdk = 35
+    }
+
+    dependencies {
+        // Classpath for Kotlin Gradle plugin
+        classpath libs.kotlin.gradle
+
+        // Classpath for Android Gradle plugin
+        classpath 'com.android.tools.build:gradle:8.10.1'
+        // Ensure this version is compatible with your Kotlin version
+
+        // Add the dependency for the Crashlytics Gradle plugin
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.3'
+    }
+}
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id 'com.google.gms.google-services' version '4.4.2' apply false
+
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    // Existing plugins
+    alias(libs.plugins.compose.compiler) apply false
+}

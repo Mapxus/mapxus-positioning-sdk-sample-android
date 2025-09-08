@@ -1,0 +1,139 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    // Existing plugins
+    alias(libs.plugins.compose.compiler)
+}
+
+def secretPropertiesFile = rootProject.file("./secret.properties")
+def secretProperties = new Properties()
+secretProperties.load(new FileInputStream(secretPropertiesFile))
+
+android {
+    compileSdk compile_sdk
+
+    defaultConfig {
+        minSdk min_sdk
+        targetSdk target_sdk
+        versionCode version_code
+        versionName version_name
+
+        ndk {
+            abiFilters 'armeabi', 'armeabi-v7a', 'armeabi-v8a', "arm64-v8a"
+        }
+
+        vectorDrawables {
+            useSupportLibrary true
+        }
+
+    }
+
+    flavorDimensions "site"
+
+    productFlavors {
+        mapxusProd {
+            dimension "site"
+            applicationId "com.mapxus.positioning.sample_app"
+            manifestPlaceholders = ["appid": secretProperties['appid'], "secret": secretProperties['secret']]
+        }
+
+        jp {
+            dimension "site"
+            applicationId "com.mapxus.positioning.sample_app.jp"
+            manifestPlaceholders = ["appid": secretProperties['appid-jp'], "secret": secretProperties['secret-jp']]
+        }
+
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Positioning_Sample_App_${defaultConfig.versionName}_${variant.name}.apk"
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../maphive.jks")
+            keyAlias secretProperties['keyAlias']
+            keyPassword secretProperties['keyPassword']
+            storePassword secretProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+
+        release {
+            debuggable false
+            minifyEnabled true
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        buildConfig true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion "$compose_compiler_version"
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
+    namespace 'com.mapxus.positioning.sample_app'
+    lint {
+        abortOnError false
+    }
+}
+
+configurations {
+    mapxusProdImplementation
+    jpImplementation
+}
+
+dependencies {
+    def positioningVersion = "3.0.5"
+    mapxusProdImplementation "com.mapxus.positioning:positioning:$positioningVersion"
+    jpImplementation "com.mapxus.positioning:positioning-jp:$positioningVersion"
+
+    //mapxus
+    mapxusProdImplementation libs.mapxus.map
+    jpImplementation libs.mapxus.map.jp
+
+    //google & compose
+    implementation libs.google.material
+    api(libs.compose.navigation)
+
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.ui.graphics
+    api libs.compose.material3
+    api libs.compose.ui.tooling
+
+    //permission
+    api libs.permissionx
+
+    // data store
+    api libs.androidx.datastore.preferences
+
+    //crash report
+// Import the BoM for the Firebase platform
+    api platform(libs.firebase.bom)
+    api libs.firebase.crashlytics.ktx
+    api libs.firebase.analytics.ktx
+}

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.mapxus.positioning.sample_app">
+
+    <application
+        android:name="com.mapxus.positioning.sample_app.BaseApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher_foreground"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PositioningSample"
+        tools:targetApi="31">
+        <profileable android:shell="true" />
+
+        <activity
+            android:name="com.mapxus.positioning.sample_app.page.clientapi.ClientApiActivity"
+            android:exported="true"
+            android:launchMode="standard">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.mapxus.api.v1.appid"
+            android:value="${appid}" />
+        <meta-data
+            android:name="com.mapxus.api.v1.secret"
+            android:value="${secret}" />
+
+        <activity
+            android:name="com.mapxus.positioning.sample_app.page.positioning.PositioningActivity"
+            android:exported="true"
+            android:label="@string/positioning">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapxus.positioning.sample_app.page.clientapi.ClientApiActivity" />
+        </activity>
+        <activity
+            android:name="com.mapxus.positioning.sample_app.page.steplength.StepLengthConfigActivity"
+            android:exported="true"
+            android:label="@string/step_length_config">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapxus.positioning.sample_app.page.clientapi.ClientApiActivity" />
+        </activity>
+        <activity
+            android:name="com.mapxus.positioning.sample_app.page.uploadlog.UploadLogActivity"
+            android:exported="false"
+            android:label="@string/upload_record">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapxus.positioning.sample_app.page.clientapi.ClientApiActivity" />
+        </activity>
+    </application>
+
+</manifest>

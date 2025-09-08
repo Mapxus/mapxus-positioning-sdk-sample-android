@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "794641075369",
+    "project_id": "positioning-sample-app",
+    "storage_bucket": "positioning-sample-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794641075369:android:717299b08d29e4f8346db8",
+        "android_client_info": {
+          "package_name": "com.mapxus.positioning.sample_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvU-JSxZYKpFg1slG6x6AiSiJa3WM_6B8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794641075369:android:fb711070c298c034346db8",
+        "android_client_info": {
+          "package_name": "com.mapxus.positioning.sample_app.jp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvU-JSxZYKpFg1slG6x6AiSiJa3WM_6B8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
