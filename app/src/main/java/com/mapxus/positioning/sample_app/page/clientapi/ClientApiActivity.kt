@@ -178,7 +178,7 @@ class ClientApiActivity : AppCompatActivity() {
                                 .padding(bottom = 20.dp)
                         ) {
                             Column {
-                                Text(text = "SDK Version ${BuildConfig.VERSION_NAME}")
+                                Text(text = "SDK Version ${com.mapxus.positioning.BuildConfig.VERSION_NAME}")
                                 Text(text = "App Version ${BuildConfig.VERSION_NAME}")
                             }
                         }
