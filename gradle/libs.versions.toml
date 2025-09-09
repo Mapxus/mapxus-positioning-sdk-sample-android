@@ -13,7 +13,6 @@ firebase-bom = "32.1.0"
 [libraries]
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 mapxus-map = { module = "com.mapxus.map:mapxusmap", version.ref = "mapxus-map" }
-mapxus-map-jp = { module = "com.mapxus.map:mapxusmap-jp", version.ref = "mapxus-map" }
 google-material = { module = "com.google.android.material:material", version.ref = "material" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
@@ -22,9 +21,6 @@ compose-material3 = { module = "androidx.compose.material3:material3", version.r
 compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 permissionx = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
-firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

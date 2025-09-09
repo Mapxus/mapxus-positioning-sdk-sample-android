@@ -132,7 +132,7 @@ class ClientApiActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appName = getString(R.string.app_name)
-        "App info : $appName ${BuildConfig.VERSION_NAME} , ${BuildConfig.FLAVOR}  ,${BuildConfig.BUILD_TYPE} ".logI(
+        "App info : $appName ${BuildConfig.VERSION_NAME}   ,${BuildConfig.BUILD_TYPE} ".logI(
             TAG
         )
         "Device info : ${Build.DEVICE} ${Build.MODEL} ${Build.BRAND} ".logI(TAG)

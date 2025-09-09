@@ -1,8 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'com.google.gms.google-services'
-    id 'com.google.firebase.crashlytics'
     // Existing plugins
     alias(libs.plugins.compose.compiler)
 }
@@ -19,6 +17,7 @@ android {
         targetSdk target_sdk
         versionCode version_code
         versionName version_name
+        applicationId "com.mapxus.positioning.sample_app"
 
         ndk {
             abiFilters 'armeabi', 'armeabi-v7a', 'armeabi-v8a', "arm64-v8a"
@@ -27,23 +26,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-
-    }
-
-    flavorDimensions "site"
-
-    productFlavors {
-        mapxusProd {
-            dimension "site"
-            applicationId "com.mapxus.positioning.sample_app"
-            manifestPlaceholders = ["appid": secretProperties['appid'], "secret": secretProperties['secret']]
-        }
-
-        jp {
-            dimension "site"
-            applicationId "com.mapxus.positioning.sample_app.jp"
-            manifestPlaceholders = ["appid": secretProperties['appid-jp'], "secret": secretProperties['secret-jp']]
-        }
+        manifestPlaceholders = ["appid": secretProperties['appid'], "secret": secretProperties['secret']]
 
     }
 
@@ -53,25 +36,11 @@ android {
         }
     }
 
-    signingConfigs {
-        release {
-            storeFile file("../maphive.jks")
-            keyAlias secretProperties['keyAlias']
-            keyPassword secretProperties['keyPassword']
-            storePassword secretProperties['storePassword']
-        }
-    }
-
     buildTypes {
         debug {
             debuggable true
         }
 
-        release {
-            debuggable false
-            minifyEnabled true
-            signingConfig signingConfigs.release
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -102,19 +71,12 @@ android {
     }
 }
 
-configurations {
-    mapxusProdImplementation
-    jpImplementation
-}
-
 dependencies {
     def positioningVersion = "3.0.5"
-    mapxusProdImplementation "com.mapxus.positioning:positioning:$positioningVersion"
-    jpImplementation "com.mapxus.positioning:positioning-jp:$positioningVersion"
+    implementation "com.mapxus.positioning:positioning:$positioningVersion"
 
     //mapxus
-    mapxusProdImplementation libs.mapxus.map
-    jpImplementation libs.mapxus.map.jp
+    implementation libs.mapxus.map
 
     //google & compose
     implementation libs.google.material
@@ -130,10 +92,4 @@ dependencies {
 
     // data store
     api libs.androidx.datastore.preferences
-
-    //crash report
-// Import the BoM for the Firebase platform
-    api platform(libs.firebase.bom)
-    api libs.firebase.crashlytics.ktx
-    api libs.firebase.analytics.ktx
 }
