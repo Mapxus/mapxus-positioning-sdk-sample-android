@@ -50,7 +50,7 @@ fun BottomContainer(
 ) {
     val bottomContainerUiState by viewModel.bottomContainerUiState.collectAsState()
     val positioningModeButtonText by remember(userMode) {
-        mutableStateOf("当前模式是: $userMode")
+        mutableStateOf("Current User Mode: $userMode")
     }
 
     LaunchedEffect(positioningState) {
@@ -75,14 +75,14 @@ fun BottomContainer(
             ) {
 
                 if (bottomContainerUiState.isStarted) {
-                    TextButtonSmall("停止定位") {
+                    TextButtonSmall("Stop Positioning") {
                         viewModel.stop()
                         onStopPositioningButtonClick()
                     }
                 }
 
                 if (bottomContainerUiState.isStarted) {
-                    TextButtonSmall("刷新定位", enabled = bottomContainerUiState.refreshEnable) {
+                    TextButtonSmall("Refresh Location", enabled = bottomContainerUiState.refreshEnable) {
                         viewModel.refreshButtonClicked()
                         onRefreshLocationButtonClick()
                     }
@@ -91,27 +91,27 @@ fun BottomContainer(
                 if (bottomContainerUiState.isStarted) {
                     TextButtonSmall(
                         if (isFollowMap) {
-                            "当前是地图跟随模式"
+                            "Location Follow"
                         } else {
-                            "当前是自由模式"
+                            "Free Move"
                         },
                         onClick = onMapFollowButtonClick
                     )
                 }
 
                 if (!bottomContainerUiState.isSettingCustomLocation && !bottomContainerUiState.isStarted) {
-                    TextButtonSmall("开始定位") {
+                    TextButtonSmall("Start Positioning") {
                         onStartPositionButtonClick()
                         viewModel.start()
                     }
-                    TextButtonSmall("自定义定位") {
+                    TextButtonSmall("Customize Location") {
                         viewModel.isSettingCustomLocation(true)
                         onCustomLocationButtonClick()
                     }
                 }
 
                 if (bottomContainerUiState.isSettingCustomLocation && !bottomContainerUiState.isStarted) {
-                    TextButtonSmall("开始自定义定位") {
+                    TextButtonSmall("Start Positioning") {
                         val result = onStartCustomLocationPositioningButtonClick()
                         if (result) {
                             viewModel.isSettingCustomLocation(false)
@@ -119,11 +119,11 @@ fun BottomContainer(
                             viewModel.start()
                         }
                     }
-                    TextButtonSmall("取消自定义定位") {
+                    TextButtonSmall("Cancel") {
                         viewModel.isSettingCustomLocation(false)
                         onCancelCustomLocationButtonClick()
                     }
-                    TextButtonSmall("搜索建筑") {
+                    TextButtonSmall("Search Building") {
                         viewModel.isSearchingBuilding(true)
                     }
                 }

@@ -21,17 +21,17 @@ fun LeftContainer(
         horizontalAlignment = Alignment.Start,
     ) {
         DebugTextRow(
-            textTitle = "Positioning Client状态 -> ",
+            textTitle = "Positioning Client State -> ",
             textValue = positioningState?.toString() ?: ""
         )
 
         DebugTextRow(
-            textTitle = "当前用户模式 -> ",
+            textTitle = "User Mode -> ",
             textValue = userMode.name
         )
 
         DebugTextRow(
-            textTitle = "当前(楼层名,建筑名) -> ",
+            textTitle = "Floor, Building -> ",
             textValue = currentLocateSiteName
         )
     }

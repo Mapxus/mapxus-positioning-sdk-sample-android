@@ -111,7 +111,7 @@ fun PositioningScreen(
                     layerProvider?.generateDebugLayer()
                     true
                 } else {
-                    context.showToast("还没有选择位置 ，请选择位置后再继续操作")
+                    context.showToast("Please provide customized location then start.")
                     false
                 }
             },
