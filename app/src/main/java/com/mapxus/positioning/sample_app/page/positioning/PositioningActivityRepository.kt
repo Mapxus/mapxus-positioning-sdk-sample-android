@@ -44,7 +44,7 @@ private const val TAG = "PositioningActivityRepository"
 class PositioningActivityRepository(
     private val context: Context,
     private val viewModelScope: CoroutineScope,
-    private val mapxusPositioningClient: MapxusPositioningClient?,
+    private val mapxusPositioningClient: MapxusPositioningClient,
 ) : MapxusPositioningListener {
     private var currentLocation: MapxusLocation? = null
 
@@ -68,7 +68,7 @@ class PositioningActivityRepository(
     private val venueSearch: VenueSearch = VenueSearch.newInstance()
 
     init {
-        mapxusPositioningClient?.addPositioningListener(this)
+        mapxusPositioningClient.addPositioningListener(this)
         viewModelScope.launch {
             val preferences = context.applicationContext.appSettingDataStore.data.first()
             val isAlwaysFollow =
@@ -79,7 +79,7 @@ class PositioningActivityRepository(
                 preferences[AppSettingDataStoreKeys.POSITIONING_MODE].takeIf { !it.isNullOrBlank() }
                     ?.let {
                         val result = UserMode.valueOf(it)
-                        mapxusPositioningClient?.setUserMode(result)
+                        mapxusPositioningClient.setUserMode(result)
                         result
                     }
             " preference:$currentPositioningMode ".logD()
@@ -96,7 +96,7 @@ class PositioningActivityRepository(
     }
 
     fun updateUserMode(userMode: UserMode) {
-        mapxusPositioningClient?.setUserMode(userMode)
+        mapxusPositioningClient.setUserMode(userMode)
         _positioningActivityUiState.update {
             it.copy(
                 userMode = userMode
