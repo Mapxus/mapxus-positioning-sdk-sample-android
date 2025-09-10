@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.mapxus.positioning.BuildConfig
 import com.mapxus.positioning.sample_app.R
 import com.mapxus.positioning.sample_app.ui.component.CommonTopAppBar
 import com.mapxus.positioning.sample_app.ui.theme.AppTheme
@@ -52,7 +51,7 @@ open class PositioningActivity : AppCompatActivity() {
         " ============================= 进入 PositioningActivity =============================".logI(
             TAG
         )
-        val title = "${getString(R.string.app_name)} ${BuildConfig.VERSION_NAME}"
+        val title = "${getString(R.string.app_name)} ${com.mapxus.positioning.sample_app.BuildConfig.VERSION_NAME}"
 
         onBackPressedDispatcher.addCallback {
             finish()
