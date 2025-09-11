@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.mapxus.positioning.api.positioning.MapxusLocation
 import com.mapxus.positioning.api.positioning.MapxusPositioningClient
 import com.mapxus.positioning.api.positioning.UserMode
+import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusPositioningProvider
 import com.mapxus.positioning.sample_app.utils.AppSettingDataStoreKeys
 import com.mapxus.positioning.sample_app.utils.appSettingDataStore
 import com.mapxus.positioning.sample_app.utils.logD
@@ -35,7 +36,9 @@ class PositioningActivityViewModel(
     var customLocation: MapxusLocation? = null
 
     fun startPositioning(
+        mapxusPositioningProvider: MapxusPositioningProvider
     ) {
+        mapxusPositioningClient.addPositioningListener(mapxusPositioningProvider)
         mapxusPositioningClient.setUserMode(positioningActivityRepository.positioningActivityUiState.value.userMode)
         "start replayFiles: customLocation: $customLocation ".logI(TAG)
         val location = customLocation
@@ -89,10 +92,13 @@ class PositioningActivityViewModel(
         positioningActivityRepository.clearCache()
     }
 
-    fun stop() {
+    fun stop(
+        mapxusPositioningProvider: MapxusPositioningProvider
+    ) {
         viewModelScope.launch {
             clearCache()
             mapxusPositioningClient.stop()
+            mapxusPositioningClient.removePositioningListener(mapxusPositioningProvider)
         }
     }
 

@@ -22,6 +22,7 @@ import com.mapxus.map.mapxusmap.api.map.MapxusMap
 import com.mapxus.positioning.api.positioning.PositioningState
 import com.mapxus.positioning.sample_app.page.positioning.mapview.LayerProvider
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusMap
+import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusPositioningProvider
 import com.mapxus.positioning.sample_app.page.positioning.mapview.followUserLocation
 import com.mapxus.positioning.sample_app.page.positioning.mapview.headingMap
 import com.mapxus.positioning.sample_app.page.positioning.model.PositioningActivityEvent
@@ -48,10 +49,14 @@ fun PositioningScreen(
     var mapxusMap by remember { mutableStateOf<MapxusMap?>(null) }
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
     var layerProvider by remember { mutableStateOf<LayerProvider?>(null) }
+    val mapxusPositioningProvider: MapxusPositioningProvider = remember {
+        MapxusPositioningProvider()
+    }
 
     LifecycleEffect(
         onPause = {
-            viewModel.stop()
+            mapxusMap?.setLocationEnabled(false)
+            viewModel.stop(mapxusPositioningProvider)
         }
     )
 
@@ -64,6 +69,7 @@ fun PositioningScreen(
         },
         onGetMapxusMap = {
             mapxusMap = it
+            it.setLocationProvider(mapxusPositioningProvider)
         },
         onGetMap = {
             map = it
@@ -98,15 +104,17 @@ fun PositioningScreen(
             onClickedStartPositionButton = {
                 mapxusMap?.removeMapxusPointAnnotations()
                 layerProvider?.generateDebugLayer()
-                viewModel.startPositioning(
-                )
+                mapxusMap?.setLocationEnabled(true)
+                viewModel.startPositioning(mapxusPositioningProvider)
             },
             onClickedStartCustomLocationPositioningButton = {
                 if (viewModel.customLocation != null) {
                     viewModel.isSettingCustomLocation(false)
                     mapxusMap?.removeMapxusPointAnnotations()
                     layerProvider?.clearMap()
+                    mapxusMap?.setLocationEnabled(true)
                     viewModel.startPositioning(
+                        mapxusPositioningProvider
                     )
                     layerProvider?.generateDebugLayer()
                     true
@@ -124,7 +132,8 @@ fun PositioningScreen(
             onClickedStopPositionButton = {
                 mapxusMap?.removeMapxusPointAnnotations()
                 layerProvider?.clearMap()
-                viewModel.stop()
+                mapxusMap?.setLocationEnabled(false)
+                viewModel.stop(mapxusPositioningProvider)
             },
             onClickedRefreshLocationButton = {
                 val result = viewModel.refreshLocation()
