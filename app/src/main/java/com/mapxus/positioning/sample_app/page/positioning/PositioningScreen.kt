@@ -55,6 +55,7 @@ fun PositioningScreen(
 
     LifecycleEffect(
         onPause = {
+            //core sdk 方法 ，设置定位蓝点是否显示
             mapxusMap?.setLocationEnabled(false)
             viewModel.stop(mapxusPositioningProvider)
         }
@@ -69,6 +70,7 @@ fun PositioningScreen(
         },
         onGetMapxusMap = {
             mapxusMap = it
+            //core sdk 方法 ，将对象设置进map中
             it.setLocationProvider(mapxusPositioningProvider)
         },
         onGetMap = {

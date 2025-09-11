@@ -35,9 +35,15 @@ class PositioningActivityViewModel(
 
     var customLocation: MapxusLocation? = null
 
+    /**
+     * Start positioning
+     *
+     * @param mapxusPositioningProvider core sdk 显示定位蓝点对象
+     */
     fun startPositioning(
         mapxusPositioningProvider: MapxusPositioningProvider
     ) {
+        //core sdk 显示定位蓝点对象添加监听器
         mapxusPositioningClient.addPositioningListener(mapxusPositioningProvider)
         mapxusPositioningClient.setUserMode(positioningActivityRepository.positioningActivityUiState.value.userMode)
         "start replayFiles: customLocation: $customLocation ".logI(TAG)
@@ -92,12 +98,18 @@ class PositioningActivityViewModel(
         positioningActivityRepository.clearCache()
     }
 
+    /**
+     * Stop
+     *
+     * @param mapxusPositioningProvider core sdk 显示定位蓝点对象
+     */
     fun stop(
         mapxusPositioningProvider: MapxusPositioningProvider
     ) {
         viewModelScope.launch {
             clearCache()
             mapxusPositioningClient.stop()
+            //core sdk 显示定位蓝点对象 remove 监听器
             mapxusPositioningClient.removePositioningListener(mapxusPositioningProvider)
         }
     }
