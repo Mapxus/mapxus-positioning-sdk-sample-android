@@ -30,8 +30,9 @@ class PositioningActivityViewModel(
             mapxusPositioningClient,
         )
 
-    val positioningActivityEvent = positioningActivityRepository.positioningActivityEvent
     val positioningActivityUiState = positioningActivityRepository.positioningActivityUiState
+
+    val followUserModeChangedListener = positioningActivityRepository.followUserModeChangedListener
 
     var customLocation: MapxusLocation? = null
 
@@ -67,16 +68,6 @@ class PositioningActivityViewModel(
             }
 
             positioningActivityRepository.updateUserMode(userMode)
-        }
-    }
-
-    fun switchAlwaysFollowMap() {
-        viewModelScope.launch {
-            context.appSettingDataStore.edit { preferences ->
-                preferences[AppSettingDataStoreKeys.IS_FOLLOW_MAP] =
-                    !positioningActivityUiState.value.isAlwaysFollow
-            }
-            positioningActivityRepository.updateAlwaysFollowMap()
         }
     }
 

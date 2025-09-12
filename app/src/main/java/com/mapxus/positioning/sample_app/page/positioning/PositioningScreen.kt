@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,25 +14,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
+import com.mapxus.map.mapxusmap.api.map.FollowUserMode
 import com.mapxus.map.mapxusmap.api.map.MapxusMap
-import com.mapxus.positioning.api.positioning.PositioningState
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusMap
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusPositioningProvider
-import com.mapxus.positioning.sample_app.page.positioning.mapview.followUserLocation
-import com.mapxus.positioning.sample_app.page.positioning.mapview.headingMap
-import com.mapxus.positioning.sample_app.page.positioning.model.PositioningActivityEvent
 import com.mapxus.positioning.sample_app.page.positioning.ui.BottomContainer
 import com.mapxus.positioning.sample_app.page.positioning.ui.LeftContainer
 import com.mapxus.positioning.sample_app.ui.component.LifecycleEffect
 import com.mapxus.positioning.sample_app.ui.component.LoadingDialog
 import com.mapxus.positioning.sample_app.ui.component.MapxusToastContainer
-import com.mapxus.positioning.sample_app.utils.logI
 import com.mapxus.positioning.sample_app.utils.showToast
 import com.mapxus.positioning.sample_app.utils.toMapxusToastData
-import kotlinx.coroutines.launch
 import org.maplibre.android.maps.MapLibreMap
 
 private const val TAG = "PositioningScreen"
@@ -78,11 +69,6 @@ fun PositioningScreen(
     )
 
     if (mapxusMap != null) {
-        HandleUiEvent(
-            viewModel = viewModel,
-            map = map!!,
-            mapxusmap = mapxusMap!!,
-        )
         //foreground
         ForegroundView(
             viewModel = viewModel,
@@ -97,6 +83,8 @@ fun PositioningScreen(
                 mapxusMap?.removeMapxusPointAnnotations()
                 //core sdk 方法 ，设置定位蓝点是否显示
                 mapxusMap?.setLocationEnabled(true)
+                //core sdk 方法 ，设置监听follow user mode 事件
+                mapxusMap?.addOnFollowUserModeChangedListener(viewModel.followUserModeChangedListener)
                 viewModel.startPositioning(mapxusPositioningProvider)
             },
             onClickedStartCustomLocationPositioningButton = {
@@ -105,6 +93,8 @@ fun PositioningScreen(
                     mapxusMap?.removeMapxusPointAnnotations()
                     //core sdk 方法 ，设置定位蓝点是否显示
                     mapxusMap?.setLocationEnabled(true)
+                    //core sdk 方法 ，设置监听follow user mode 事件
+                    mapxusMap?.addOnFollowUserModeChangedListener(viewModel.followUserModeChangedListener)
                     viewModel.startPositioning(
                         mapxusPositioningProvider
                     )
@@ -115,7 +105,12 @@ fun PositioningScreen(
                 }
             },
             onMapFollowButtonClick = {
-                viewModel.switchAlwaysFollowMap()
+                val result = when (mapxusMap?.followUserMode) {
+                    FollowUserMode.FOLLOW_USER -> FollowUserMode.FOLLOW_USER_AND_HEADING
+                    FollowUserMode.FOLLOW_USER_AND_HEADING -> FollowUserMode.NONE
+                    else -> FollowUserMode.FOLLOW_USER
+                }
+                mapxusMap?.followUserMode = result
             },
             onSearchResultItemClick = { buildingId ->
                 mapxusMap?.selectBuildingById(buildingId)
@@ -134,56 +129,6 @@ fun PositioningScreen(
                 viewModel.togglePositioningMode()
             }
         )
-    }
-}
-
-@Composable
-private fun HandleUiEvent(
-    viewModel: PositioningActivityViewModel,
-    map: MapLibreMap,
-    mapxusmap: MapxusMap,
-) {
-
-    var lastLocationIsOutDoor = remember {
-        false
-    }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(Unit) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-            launch {
-                viewModel.positioningActivityEvent.collect { event ->
-                    when (event) {
-                        is PositioningActivityEvent.LocationEvent -> {
-                            val location = event.mapxusLocation
-                            "receive currentLocation  $location".logI(TAG)
-                            if (lastLocationIsOutDoor && location.venueId == null) {
-                                "keep outdoor , not following".logI(TAG)
-                                return@collect
-                            }
-                            followUserLocation(
-                                mapxusmap,
-                                map,
-                                event.isAlwaysFollowMap,
-                                location
-                            )
-                            lastLocationIsOutDoor = location.venueId == null
-                        }
-
-                        is PositioningActivityEvent.BearingEvent -> {
-                            headingMap(event.bearing, map)
-                        }
-
-                        is PositioningActivityEvent.PositioningStateChangeEvent -> {
-                            if (event.positioningState == PositioningState.STOPPED) {
-                                mapxusmap.removeMapxusPointAnnotations()
-                                viewModel.clearCache()
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -219,7 +164,7 @@ private fun ForegroundView(
         //bottom
         BottomContainer(
             modifier = Modifier.align(Alignment.BottomCenter),
-            isFollowMap = positioningActivityUiState.isAlwaysFollow,
+            followUserMode = positioningActivityUiState.followUserMode,
             userMode = positioningActivityUiState.userMode,
             positioningState = positioningActivityUiState.currentPositioningState,
             onPositioningModeButtonClick = onPositioningModeButtonClick,

@@ -1,5 +1,6 @@
 package com.mapxus.positioning.sample_app.page.positioning.model
 
+import com.mapxus.map.mapxusmap.api.map.FollowUserMode
 import com.mapxus.positioning.api.UserFeedbackInfo
 import com.mapxus.positioning.api.positioning.PositioningMode
 import com.mapxus.positioning.api.positioning.PositioningState
@@ -9,7 +10,7 @@ data class PositioningActivityUiState(
     val currentPositioningState: PositioningState? = null,
     val currentLocateSiteName: String = "",
     val userMode: UserMode = UserMode.PEDESTRIAN,
-    val isAlwaysFollow: Boolean = false,
+    val followUserMode: Int = FollowUserMode.FOLLOW_USER,
     val isSettingCustomLocation: Boolean = false,
     val currentPositioningMode: PositioningMode? = null,
     val feedbackMessages: List<UserFeedbackInfo> = emptyList(),

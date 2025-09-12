@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mapxus.map.mapxusmap.api.map.FollowUserMode
 import com.mapxus.positioning.api.positioning.PositioningState
 import com.mapxus.positioning.api.positioning.UserMode
 import com.mapxus.positioning.sample_app.ui.component.TextButtonSmall
@@ -35,7 +36,7 @@ import kotlinx.coroutines.launch
 fun BottomContainer(
     modifier: Modifier = Modifier,
     viewModel: BottomContainerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    isFollowMap: Boolean = true,
+    followUserMode: Int = FollowUserMode.NONE,
     positioningState: PositioningState? = PositioningState.INITIALIZING,
     userMode: UserMode = UserMode.WHEELCHAIR,
     onPositioningModeButtonClick: () -> Unit = {},
@@ -90,10 +91,10 @@ fun BottomContainer(
 
                 if (bottomContainerUiState.isStarted) {
                     TextButtonSmall(
-                        if (isFollowMap) {
-                            "Location Follow"
-                        } else {
-                            "Free Move"
+                        when (followUserMode) {
+                            FollowUserMode.FOLLOW_USER -> "Follow User"
+                            FollowUserMode.FOLLOW_USER_AND_HEADING -> "Heading"
+                            else -> "None"
                         },
                         onClick = onMapFollowButtonClick
                     )

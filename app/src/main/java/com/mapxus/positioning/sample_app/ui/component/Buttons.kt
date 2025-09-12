@@ -50,7 +50,7 @@ fun TextButtonSmall(text: String = "test", enabled: Boolean = true, onClick: () 
     ) {
         Text(
             text = text,
-            fontSize = 10.sp,
+            fontSize = 9.sp,
         )
     }
 }

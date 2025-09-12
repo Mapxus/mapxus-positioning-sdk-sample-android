@@ -33,8 +33,6 @@ import com.mapxus.positioning.api.positioning.MapxusFloor
 import com.mapxus.positioning.api.positioning.MapxusLocation
 import com.mapxus.positioning.sample_app.R
 import com.mapxus.positioning.sample_app.utils.getName
-import com.mapxus.positioning.sample_app.utils.logD
-import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
@@ -397,100 +395,3 @@ private fun MapView.componentCallbacks(): ComponentCallbacks =
             this@componentCallbacks.onLowMemory()
         }
     }
-
-fun headingMap(bearing: Double, map: MapLibreMap) {
-    map.moveCamera(CameraUpdateFactory.bearingTo(bearing))
-}
-
-fun followUserLocation(
-    mapxusmap: MapxusMap,
-    map: MapLibreMap,
-    isAlwaysFollow: Boolean,
-    mapxusLocation: MapxusLocation
-) {
-    val currentMapFloor = mapxusmap.selectedFloor
-    "followUserLocation  selectedVenueId:${mapxusmap.selectedVenueId} selectedBuildingId:${mapxusmap.selectedBuildingId} selectedFloor:$currentMapFloor isAlwaysFollow:$isAlwaysFollow mapxusLocation:$mapxusLocation ".logD(
-    )
-    when {
-        isAlwaysFollow -> {
-            followUserCenter(
-                mapxusmap,
-                map,
-                mapxusLocation,
-                currentMapFloor?.id != mapxusLocation.mapxusFloor?.id
-            )
-        }
-
-        mapxusLocation.venueId == null -> followUserCenter(
-            mapxusmap,
-            map, mapxusLocation, false
-        )
-
-        mapxusLocation.buildingId != null && mapxusmap.selectedBuildingId != mapxusLocation.buildingId -> followUserCenter(
-            mapxusmap,
-            map,
-            mapxusLocation,
-            true
-        )
-
-
-        mapxusLocation.venueId != null && mapxusmap.selectedVenueId != mapxusLocation.venueId -> followUserCenter(
-            mapxusmap,
-            map,
-            mapxusLocation,
-            true
-        )
-
-        currentMapFloor?.id != mapxusLocation.mapxusFloor?.id -> {
-            mapxusLocation.mapxusFloor?.let {
-                followUserFloor(
-                    mapxusmap,
-                    it
-                )
-            }
-        }
-    }
-}
-
-private fun followUserFloor(
-    mapxusmap: MapxusMap,
-    mapxusFloor: MapxusFloor
-) {
-    val floorId = mapxusFloor.id
-    if (mapxusFloor.type == MapxusFloor.Type.FLOOR) {
-        mapxusmap.selectFloorById(
-            floorId, MapxusMapZoomMode.ZoomDisable, null
-        )
-    } else {
-        mapxusmap.selectSharedFloorById(
-            floorId, MapxusMapZoomMode.ZoomDisable, null
-        )
-    }
-}
-
-private fun followUserCenter(
-    mapxusmap: MapxusMap,
-    map: MapLibreMap,
-    mapxusLocation: MapxusLocation,
-    isFollowUserFloor: Boolean
-) {
-    map.moveCamera(
-        CameraUpdateFactory.newLatLngZoom(
-            org.maplibre.android.geometry.LatLng(
-                mapxusLocation.latitude, mapxusLocation.longitude
-            ),
-            map.cameraPosition.zoom.takeIf { it > 5 } ?: 18.0
-        ), object : MapLibreMap.CancelableCallback {
-            override fun onCancel() {
-            }
-
-            override fun onFinish() {
-                if (isFollowUserFloor) {
-                    mapxusLocation.mapxusFloor?.let {
-                        followUserFloor(mapxusmap, it)
-                    }
-                }
-            }
-        }
-    )
-}

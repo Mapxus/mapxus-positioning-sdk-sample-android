@@ -2,6 +2,7 @@ package com.mapxus.positioning.sample_app.page.positioning
 
 import android.content.Context
 import androidx.collection.LruCache
+import com.mapxus.map.mapxusmap.api.map.MapxusMap
 import com.mapxus.map.mapxusmap.api.services.VenueSearch
 import com.mapxus.map.mapxusmap.api.services.model.DetailSearchOption
 import com.mapxus.map.mapxusmap.api.services.model.venue.VenueInfo
@@ -13,7 +14,6 @@ import com.mapxus.positioning.api.positioning.MapxusPositioningListener
 import com.mapxus.positioning.api.positioning.PositioningMode
 import com.mapxus.positioning.api.positioning.PositioningState
 import com.mapxus.positioning.api.positioning.UserMode
-import com.mapxus.positioning.sample_app.page.positioning.model.PositioningActivityEvent
 import com.mapxus.positioning.sample_app.page.positioning.model.PositioningActivityUiState
 import com.mapxus.positioning.sample_app.utils.AppSettingDataStoreKeys
 import com.mapxus.positioning.sample_app.utils.appSettingDataStore
@@ -24,9 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -45,10 +43,6 @@ class PositioningActivityRepository(
         MutableStateFlow(PositioningActivityUiState())
     val positioningActivityUiState = _positioningActivityUiState.asStateFlow()
 
-    private val _positioningActivityEvent: MutableSharedFlow<PositioningActivityEvent> =
-        MutableSharedFlow()
-    val positioningActivityEvent = _positioningActivityEvent.asSharedFlow()
-
     private val feedbackMessageThread = CoroutineScope(Dispatchers.Main)
 
     private val feedbackMessageCache = LruCache<Long, UserFeedbackInfo>(3)
@@ -60,13 +54,20 @@ class PositioningActivityRepository(
 
     private val venueSearch: VenueSearch = VenueSearch.newInstance()
 
+    val followUserModeChangedListener = object : MapxusMap.OnFollowUserModeChangedListener {
+        override fun OnFollowUserModeChanged(p0: Int) {
+            _positioningActivityUiState.update {
+                it.copy(
+                    followUserMode = p0
+                )
+            }
+        }
+    }
+
     init {
         mapxusPositioningClient.addPositioningListener(this)
         viewModelScope.launch {
             val preferences = context.applicationContext.appSettingDataStore.data.first()
-            val isAlwaysFollow =
-                preferences[AppSettingDataStoreKeys.IS_FOLLOW_MAP] ?: false
-            "is always Follow Map $isAlwaysFollow".logI(TAG)
 
             val currentPositioningMode =
                 preferences[AppSettingDataStoreKeys.POSITIONING_MODE].takeIf { !it.isNullOrBlank() }
@@ -80,11 +81,6 @@ class PositioningActivityRepository(
 
             updateUserMode(currentPositioningMode ?: UserMode.PEDESTRIAN)
 
-            _positioningActivityUiState.update {
-                it.copy(
-                    isAlwaysFollow = isAlwaysFollow
-                )
-            }
         }
     }
 
@@ -97,23 +93,8 @@ class PositioningActivityRepository(
         }
     }
 
-    fun updateAlwaysFollowMap() {
-        _positioningActivityUiState.update {
-            it.copy(
-                isAlwaysFollow = !_positioningActivityUiState.value.isAlwaysFollow
-            )
-        }
-    }
-
     override fun onStateChange(state: PositioningState) {
         "receive state change: $state".logI(TAG)
-        viewModelScope.launch {
-            _positioningActivityEvent.emit(
-                PositioningActivityEvent.PositioningStateChangeEvent(
-                    state
-                )
-            )
-        }
         _positioningActivityUiState.update {
             it.copy(
                 currentPositioningState = state,
@@ -146,13 +127,6 @@ class PositioningActivityRepository(
     }
 
     override fun onBearingChange(bearing: Float) {
-        currentLocation?.let {
-            viewModelScope.launch(Dispatchers.Main) {
-                if (_positioningActivityUiState.value.isAlwaysFollow) {
-                    _positioningActivityEvent.emit(PositioningActivityEvent.BearingEvent(bearing.toDouble()))
-                }
-            }
-        }
     }
 
     override fun onLocationChange(location: MapxusLocation) {
@@ -163,12 +137,6 @@ class PositioningActivityRepository(
             }
 
             currentLocation = location
-            _positioningActivityEvent.emit(
-                PositioningActivityEvent.LocationEvent(
-                    location,
-                    _positioningActivityUiState.value.isAlwaysFollow
-                )
-            )
         }
     }
 

@@ -97,7 +97,7 @@ class ClientApiActivity : AppCompatActivity() {
     private fun startDevelopmentActivity() {
         try {
             startActivityLauncher.launch(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             try {
                 startActivityLauncher.launch(Intent().apply {
                     component = ComponentName(
@@ -105,7 +105,7 @@ class ClientApiActivity : AppCompatActivity() {
                     )
                     action = "android.intent.action.View"
                 })
-            } catch (e1: Exception) {
+            } catch (_: Exception) {
                 try {
                     startActivityLauncher.launch(Intent("com.android.settings.APPLICATION_DEVELOPMENT_SETTINGS")) //部分手机采用这种方式跳转
                 } catch (e: Exception) {
