@@ -1,6 +1,7 @@
 package com.mapxus.positioning.sample_app.page.positioning
 
 import android.app.Application
+import android.location.Location
 import androidx.collection.LruCache
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
@@ -8,7 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.mapxus.map.mapxusmap.api.map.MapxusMap
 import com.mapxus.map.mapxusmap.api.services.VenueSearch
 import com.mapxus.map.mapxusmap.api.services.model.DetailSearchOption
+import com.mapxus.map.mapxusmap.api.services.model.building.FloorInfo
+import com.mapxus.map.mapxusmap.api.services.model.floor.SharedFloor
 import com.mapxus.map.mapxusmap.api.services.model.venue.VenueInfo
+import com.mapxus.map.mapxusmap.positioning.IndoorLocation
 import com.mapxus.positioning.api.UserFeedbackInfo
 import com.mapxus.positioning.api.positioning.MapxusFloor
 import com.mapxus.positioning.api.positioning.MapxusLocation
@@ -47,6 +51,13 @@ private const val TAG = "PositioningActivityViewModel"
 class PositioningActivityViewModel(
     private val context: Application,
 ) : AndroidViewModel(context), MapxusPositioningListener {
+
+    /**
+     * Mapxus positioning provider
+     *
+     * core sdk 显示蓝点逻辑对象
+     */
+    val mapxusPositioningProvider: MapxusPositioningProvider = MapxusPositioningProvider()
 
     /**
      * Mapxus positioning client
@@ -120,7 +131,9 @@ class PositioningActivityViewModel(
     var customLocation: MapxusLocation? = null
 
     init {
+        //添加监听器
         mapxusPositioningClient.addPositioningListener(this)
+        //更新缓存
         viewModelScope.launch {
             val preferences = context.applicationContext.appSettingDataStore.data.first()
 
@@ -138,6 +151,13 @@ class PositioningActivityViewModel(
         }
     }
 
+    /**
+     * Update user mode
+     *
+     * 更新用户模式缓存
+     *
+     * @param userMode
+     */
     fun updateUserMode(userMode: UserMode) {
         mapxusPositioningClient.setUserMode(userMode)
         _positioningActivityUiState.update {
@@ -150,15 +170,11 @@ class PositioningActivityViewModel(
     /**
      * Start positioning
      *
-     * @param mapxusPositioningProvider core sdk 显示定位蓝点对象
      */
-    fun startPositioning(
-        mapxusPositioningProvider: MapxusPositioningProvider
-    ) {
-        //core sdk 显示定位蓝点对象添加监听器
-        mapxusPositioningClient.addPositioningListener(mapxusPositioningProvider)
+    fun startPositioning() {
+        //设置当前用户模式
         mapxusPositioningClient.setUserMode(positioningActivityUiState.value.userMode)
-        "start replayFiles: customLocation: $customLocation ".logI(TAG)
+        "start customLocation: $customLocation ".logI(TAG)
         val location = customLocation
         if (location != null) {
             mapxusPositioningClient.startWithInitialLocation(location)
@@ -167,6 +183,12 @@ class PositioningActivityViewModel(
         }
     }
 
+    /**
+     * Toggle positioning mode
+     *
+     * 切换用户模式并更新缓存
+     *
+     */
     fun togglePositioningMode() {
         viewModelScope.launch {
             val userMode = when (positioningActivityUiState.value.userMode) {
@@ -182,6 +204,13 @@ class PositioningActivityViewModel(
         }
     }
 
+    /**
+     * Is setting custom location
+     *
+     * 更新是否正在自定义位置状态
+     *
+     * @param isSetting
+     */
     fun isSettingCustomLocation(isSetting: Boolean) {
         _positioningActivityUiState.update {
             it.copy(
@@ -190,10 +219,23 @@ class PositioningActivityViewModel(
         }
     }
 
+    /**
+     * Is setting custom location
+     *
+     * 是否正在自定义位置状态
+     *
+     * @return
+     */
     fun isSettingCustomLocation(): Boolean {
         return positioningActivityUiState.value.isSettingCustomLocation
     }
 
+    /**
+     * Clear cache
+     *
+     * 清理缓存
+     *
+     */
     fun clearCache() {
         currentLocation = null
     }
@@ -201,21 +243,30 @@ class PositioningActivityViewModel(
     /**
      * Stop
      *
-     * @param mapxusPositioningProvider core sdk 显示定位蓝点对象
+     * 停止定位
      */
-    fun stop(
-        mapxusPositioningProvider: MapxusPositioningProvider
-    ) {
+    fun stop() {
         clearCache()
         mapxusPositioningClient.stop()
-        //core sdk 显示定位蓝点对象 remove 监听器
-        mapxusPositioningClient.removePositioningListener(mapxusPositioningProvider)
     }
 
+    /**
+     * Refresh location
+     *
+     * 刷新位置
+     *
+     * @return
+     */
     fun refreshLocation(): Boolean {
         return mapxusPositioningClient.refreshLocation()
     }
 
+    /**
+     * On cleared
+     *
+     * view model 触发
+     *
+     */
     override fun onCleared() {
         super.onCleared()
         feedbackMessageThread.cancel()
@@ -234,6 +285,8 @@ class PositioningActivityViewModel(
     }
 
     override fun onBearingChange(bearing: Float) {
+        //更新蓝点方向
+        mapxusPositioningProvider.dispatchCompassChange(bearing, 0)
     }
 
     override fun onLocationChange(location: MapxusLocation) {
@@ -242,6 +295,23 @@ class PositioningActivityViewModel(
         }
 
         currentLocation = location
+
+        //处理蓝点位置更新
+        val theLocation = Location("MapxusPositioning")
+        theLocation.latitude = location.latitude
+        theLocation.longitude = location.longitude
+        theLocation.time = System.currentTimeMillis()
+        val building = location.buildingId
+        val floorInfo = location.mapxusFloor?.run {
+            when (type) {
+                MapxusFloor.Type.FLOOR -> FloorInfo(id, code, ordinal)
+                MapxusFloor.Type.SHARED_FLOOR -> SharedFloor(id, code, ordinal)
+            }
+        }
+        val indoorLocation = IndoorLocation(building, floorInfo, theLocation)
+        indoorLocation.accuracy = location.accuracy
+        //分发
+        mapxusPositioningProvider.dispatchIndoorLocationChange(indoorLocation)
     }
 
     override fun onWheelchairSpeedChange(speed: Float) {
@@ -255,6 +325,13 @@ class PositioningActivityViewModel(
         }
     }
 
+    /**
+     * Update site info
+     *
+     * 更新场地信息
+     *
+     * @param mapxusLocation
+     */
     private fun updateSiteInfo(mapxusLocation: MapxusLocation) {
         viewModelScope.launch(Dispatchers.Main) {
             var currentLocateSiteName = ""
@@ -310,6 +387,12 @@ class PositioningActivityViewModel(
         }
     }
 
+    /**
+     * Update feedback message
+     *
+     * 更新feedback信息
+     *
+     */
     private fun updateFeedbackMessage() {
         _positioningActivityUiState.update {
             it.copy(

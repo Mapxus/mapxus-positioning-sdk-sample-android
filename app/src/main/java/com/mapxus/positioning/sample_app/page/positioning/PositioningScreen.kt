@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.mapxus.map.mapxusmap.api.map.FollowUserMode
 import com.mapxus.map.mapxusmap.api.map.MapxusMap
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusMap
-import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusPositioningProvider
 import com.mapxus.positioning.sample_app.page.positioning.ui.BottomContainer
 import com.mapxus.positioning.sample_app.page.positioning.ui.LeftContainer
 import com.mapxus.positioning.sample_app.ui.component.LifecycleEffect
@@ -38,16 +37,12 @@ fun PositioningScreen(
     val positioningActivityUiState by viewModel.positioningActivityUiState.collectAsState()
     var mapxusMap by remember { mutableStateOf<MapxusMap?>(null) }
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
-    //core sdk 显示定位蓝点对象
-    val mapxusPositioningProvider: MapxusPositioningProvider = remember {
-        MapxusPositioningProvider()
-    }
 
     LifecycleEffect(
         onPause = {
             //core sdk 方法 ，设置定位蓝点是否显示
             mapxusMap?.setLocationEnabled(false)
-            viewModel.stop(mapxusPositioningProvider)
+            viewModel.stop()
         }
     )
 
@@ -61,7 +56,7 @@ fun PositioningScreen(
         onGetMapxusMap = {
             mapxusMap = it
             //core sdk 方法 ，将对象设置进map中
-            it.setLocationProvider(mapxusPositioningProvider)
+            it.setLocationProvider(viewModel.mapxusPositioningProvider)
         },
         onGetMap = {
             map = it
@@ -85,7 +80,7 @@ fun PositioningScreen(
                 mapxusMap?.setLocationEnabled(true)
                 //core sdk 方法 ，设置监听follow user mode 事件
                 mapxusMap?.addOnFollowUserModeChangedListener(viewModel.followUserModeChangedListener)
-                viewModel.startPositioning(mapxusPositioningProvider)
+                viewModel.startPositioning()
             },
             onClickedStartCustomLocationPositioningButton = {
                 if (viewModel.customLocation != null) {
@@ -95,9 +90,7 @@ fun PositioningScreen(
                     mapxusMap?.setLocationEnabled(true)
                     //core sdk 方法 ，设置监听follow user mode 事件
                     mapxusMap?.addOnFollowUserModeChangedListener(viewModel.followUserModeChangedListener)
-                    viewModel.startPositioning(
-                        mapxusPositioningProvider
-                    )
+                    viewModel.startPositioning()
                     true
                 } else {
                     context.showToast("Please provide customized location then start.")
@@ -119,7 +112,7 @@ fun PositioningScreen(
                 mapxusMap?.removeMapxusPointAnnotations()
                 //core sdk 方法 ，设置定位蓝点是否显示
                 mapxusMap?.setLocationEnabled(false)
-                viewModel.stop(mapxusPositioningProvider)
+                viewModel.stop()
             },
             onClickedRefreshLocationButton = {
                 val result = viewModel.refreshLocation()
