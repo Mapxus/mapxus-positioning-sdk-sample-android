@@ -55,12 +55,6 @@ class PositioningActivityViewModel(
         }
     }
 
-    fun updateAccuracyRadius(
-        newLocation: Boolean = false
-    ) {
-        positioningActivityRepository.updateAccuracyRadius(newLocation)
-    }
-
     fun togglePositioningMode() {
         viewModelScope.launch {
             val userMode = when (positioningActivityUiState.value.userMode) {

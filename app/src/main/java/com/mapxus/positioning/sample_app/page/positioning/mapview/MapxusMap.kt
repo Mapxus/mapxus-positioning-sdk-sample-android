@@ -3,10 +3,8 @@ package com.mapxus.positioning.sample_app.page.positioning.mapview
 import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +39,6 @@ import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.style.expressions.Expression
-import org.maplibre.android.utils.BitmapUtils
 
 private const val TAG = "MapxusMap"
 
@@ -58,9 +55,6 @@ fun MapxusMap(
 ) {
 
     val context = LocalContext.current
-    val images = remember {
-        prepareImages(context)
-    }
     val mapView = remember { MapView(context, mapOptions) }
     val mapViewProvider = remember {
         MapLibreMapViewProvider(
@@ -94,9 +88,6 @@ fun MapxusMap(
 
     LaunchedEffect(Unit) {
         mapView.getMapAsync {
-            it.getStyle { style ->
-                style.addImages(images, true)
-            }
             map = it
             onGetMap(it)
         }
@@ -394,15 +385,6 @@ private fun MapView.lifecycleObserver(previousState: MutableState<Lifecycle.Even
         }
         previousState.value = event
     }
-
-private fun prepareImages(context: Context) = hashMapOf<String, Bitmap>().apply {
-    val bearingIcon = BitmapUtils.getBitmapFromDrawable(
-        AppCompatResources.getDrawable(
-            context, R.drawable.bearing_icon
-        )
-    )
-    put(POSITION_ARROW_ICON_ID, bearingIcon!!)
-}
 
 private fun MapView.componentCallbacks(): ComponentCallbacks =
     object : ComponentCallbacks {

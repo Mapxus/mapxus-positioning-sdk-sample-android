@@ -13,11 +13,6 @@ import com.mapxus.positioning.api.positioning.MapxusPositioningListener
 import com.mapxus.positioning.api.positioning.PositioningMode
 import com.mapxus.positioning.api.positioning.PositioningState
 import com.mapxus.positioning.api.positioning.UserMode
-import com.mapxus.positioning.sample_app.page.positioning.mapview.LayerProvider.Companion.generateFeatureFormMapxusLocation
-import com.mapxus.positioning.sample_app.page.positioning.mapview.POSITION_ACCURACY_ID
-import com.mapxus.positioning.sample_app.page.positioning.mapview.POSITION_ARROW_ID
-import com.mapxus.positioning.sample_app.page.positioning.mapview.POSITION_ID
-import com.mapxus.positioning.sample_app.page.positioning.mapview.PROPERTY_BEARING
 import com.mapxus.positioning.sample_app.page.positioning.model.PositioningActivityEvent
 import com.mapxus.positioning.sample_app.page.positioning.model.PositioningActivityUiState
 import com.mapxus.positioning.sample_app.utils.AppSettingDataStoreKeys
@@ -36,8 +31,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.maplibre.geojson.FeatureCollection
 
 private const val TAG = "PositioningActivityRepository"
 
@@ -153,18 +146,8 @@ class PositioningActivityRepository(
     }
 
     override fun onBearingChange(bearing: Float) {
-        currentLocation?.let { location ->
-            generateFeatureFormMapxusLocation(location).also {
-                it.addNumberProperty(PROPERTY_BEARING, bearing)
-            }
-        }?.let {
+        currentLocation?.let {
             viewModelScope.launch(Dispatchers.Main) {
-                _positioningActivityEvent.emit(
-                    PositioningActivityEvent.UpdateSourceEvent(
-                        POSITION_ARROW_ID,
-                        FeatureCollection.fromFeature(it)
-                    )
-                )
                 if (_positioningActivityUiState.value.isAlwaysFollow) {
                     _positioningActivityEvent.emit(PositioningActivityEvent.BearingEvent(bearing.toDouble()))
                 }
@@ -179,7 +162,6 @@ class PositioningActivityRepository(
                 updateSiteInfo(location)
             }
 
-            val positionFeature = generateFeatureFormMapxusLocation(location)
             currentLocation = location
             _positioningActivityEvent.emit(
                 PositioningActivityEvent.LocationEvent(
@@ -187,15 +169,6 @@ class PositioningActivityRepository(
                     _positioningActivityUiState.value.isAlwaysFollow
                 )
             )
-            withContext(Dispatchers.Main) {
-                _positioningActivityEvent.emit(
-                    PositioningActivityEvent.UpdateSourceEvent(
-                        POSITION_ID,
-                        FeatureCollection.fromFeature(positionFeature),
-                    )
-                )
-                updateAccuracyRadius(true)
-            }
         }
     }
 
@@ -250,22 +223,6 @@ class PositioningActivityRepository(
         }
     }
 
-    fun updateAccuracyRadius(
-        newLocation: Boolean = false
-    ) {
-        currentLocation?.let { location ->
-            viewModelScope.launch {
-                _positioningActivityEvent.emit(
-                    PositioningActivityEvent.UpdateAccuracyRadiusEvent(
-                        POSITION_ACCURACY_ID,
-                        location,
-                        newLocation
-                    )
-                )
-            }
-        }
-    }
-
     fun isSettingCustomLocation(isSetting: Boolean) {
         _positioningActivityUiState.update {
             it.copy(
@@ -281,6 +238,4 @@ class PositioningActivityRepository(
     fun onCleared() {
         feedbackMessageThread.cancel()
     }
-
-
 }

@@ -20,7 +20,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.mapxus.map.mapxusmap.api.map.MapxusMap
 import com.mapxus.positioning.api.positioning.PositioningState
-import com.mapxus.positioning.sample_app.page.positioning.mapview.LayerProvider
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusMap
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusPositioningProvider
 import com.mapxus.positioning.sample_app.page.positioning.mapview.followUserLocation
@@ -48,7 +47,7 @@ fun PositioningScreen(
     val positioningActivityUiState by viewModel.positioningActivityUiState.collectAsState()
     var mapxusMap by remember { mutableStateOf<MapxusMap?>(null) }
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
-    var layerProvider by remember { mutableStateOf<LayerProvider?>(null) }
+    //core sdk 显示定位蓝点对象
     val mapxusPositioningProvider: MapxusPositioningProvider = remember {
         MapxusPositioningProvider()
     }
@@ -75,21 +74,12 @@ fun PositioningScreen(
         },
         onGetMap = {
             map = it
-            it.getStyle { style ->
-                it.addOnCameraIdleListener {
-                    viewModel.updateAccuracyRadius(false)
-                }
-                layerProvider = LayerProvider(
-                    style = style
-                )
-            }
         },
     )
 
-    if (layerProvider != null) {
+    if (mapxusMap != null) {
         HandleUiEvent(
             viewModel = viewModel,
-            layerProvider = layerProvider!!,
             map = map!!,
             mapxusmap = mapxusMap!!,
         )
@@ -105,7 +95,7 @@ fun PositioningScreen(
             },
             onClickedStartPositionButton = {
                 mapxusMap?.removeMapxusPointAnnotations()
-                layerProvider?.generateDebugLayer()
+                //core sdk 方法 ，设置定位蓝点是否显示
                 mapxusMap?.setLocationEnabled(true)
                 viewModel.startPositioning(mapxusPositioningProvider)
             },
@@ -113,12 +103,11 @@ fun PositioningScreen(
                 if (viewModel.customLocation != null) {
                     viewModel.isSettingCustomLocation(false)
                     mapxusMap?.removeMapxusPointAnnotations()
-                    layerProvider?.clearMap()
+                    //core sdk 方法 ，设置定位蓝点是否显示
                     mapxusMap?.setLocationEnabled(true)
                     viewModel.startPositioning(
                         mapxusPositioningProvider
                     )
-                    layerProvider?.generateDebugLayer()
                     true
                 } else {
                     context.showToast("Please provide customized location then start.")
@@ -133,7 +122,7 @@ fun PositioningScreen(
             },
             onClickedStopPositionButton = {
                 mapxusMap?.removeMapxusPointAnnotations()
-                layerProvider?.clearMap()
+                //core sdk 方法 ，设置定位蓝点是否显示
                 mapxusMap?.setLocationEnabled(false)
                 viewModel.stop(mapxusPositioningProvider)
             },
@@ -151,14 +140,9 @@ fun PositioningScreen(
 @Composable
 private fun HandleUiEvent(
     viewModel: PositioningActivityViewModel,
-    layerProvider: LayerProvider,
     map: MapLibreMap,
     mapxusmap: MapxusMap,
 ) {
-
-    var lastCameraZoom = remember {
-        0.0
-    }
 
     var lastLocationIsOutDoor = remember {
         false
@@ -170,19 +154,6 @@ private fun HandleUiEvent(
             launch {
                 viewModel.positioningActivityEvent.collect { event ->
                     when (event) {
-                        is PositioningActivityEvent.UpdateAccuracyRadiusEvent -> {
-                            lastCameraZoom = layerProvider.updateAccuracyRadiusSource(
-                                lastCameraZoom, event.isNewLocation, event.mapxusLocation, map
-                            )
-                        }
-
-                        is PositioningActivityEvent.UpdateSourceEvent -> {
-                            layerProvider.updateSource(
-                                event.featureCollection,
-                                event.layerId
-                            )
-                        }
-
                         is PositioningActivityEvent.LocationEvent -> {
                             val location = event.mapxusLocation
                             "receive currentLocation  $location".logI(TAG)
@@ -206,7 +177,6 @@ private fun HandleUiEvent(
                         is PositioningActivityEvent.PositioningStateChangeEvent -> {
                             if (event.positioningState == PositioningState.STOPPED) {
                                 mapxusmap.removeMapxusPointAnnotations()
-                                layerProvider.clearMap()
                                 viewModel.clearCache()
                             }
                         }
