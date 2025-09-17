@@ -12,26 +12,28 @@ import kotlinx.coroutines.flow.update
 
 class UploadLogViewModel(context: Application) : AndroidViewModel(context) {
 
-    private val issueReportListener: MapxusIssueReportListener = object : MapxusIssueReportListener {
-        override fun onRecordUploadSuccess(record: Record) {
-            _state.update {
-                it.copy(
-                    uploadResult = DataStatus.Success(Unit)
-                )
-            }
-            getLogsFile()
-        }
+    private val issueReportClient: MapxusIssueReportClient =
+        MapxusIssueReportClient.getInstance(context)
 
-        override fun onRecordUploadFailed(record: Record, errorMessage: String) {
-            _state.update {
-                it.copy(
-                    uploadResult = DataStatus.Failed(errorMessage)
-                )
+    private val issueReportListener: MapxusIssueReportListener =
+        object : MapxusIssueReportListener {
+            override fun onRecordUploadSuccess(record: Record) {
+                _state.update {
+                    it.copy(
+                        uploadResult = DataStatus.Success(Unit)
+                    )
+                }
+                getLogsFile()
+            }
+
+            override fun onRecordUploadFailed(record: Record, errorMessage: String) {
+                _state.update {
+                    it.copy(
+                        uploadResult = DataStatus.Failed(errorMessage)
+                    )
+                }
             }
         }
-    }
-
-    private val issueReportClient: MapxusIssueReportClient = MapxusIssueReportClient.getInstance(context)
 
     private val _state: MutableStateFlow<UIState> =
         MutableStateFlow(UIState())
