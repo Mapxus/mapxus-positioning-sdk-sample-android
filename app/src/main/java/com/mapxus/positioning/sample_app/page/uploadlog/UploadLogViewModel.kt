@@ -10,37 +10,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-class UploadLogViewModel(context: Application) : AndroidViewModel(context) {
+class UploadLogViewModel(context: Application) : AndroidViewModel(context),
+    MapxusIssueReportListener {
 
     private val issueReportClient: MapxusIssueReportClient =
         MapxusIssueReportClient.getInstance(context)
-
-    private val issueReportListener: MapxusIssueReportListener =
-        object : MapxusIssueReportListener {
-            override fun onRecordUploadSuccess(record: Record) {
-                _state.update {
-                    it.copy(
-                        uploadResult = DataStatus.Success(Unit)
-                    )
-                }
-                getLogsFile()
-            }
-
-            override fun onRecordUploadFailed(record: Record, errorMessage: String) {
-                _state.update {
-                    it.copy(
-                        uploadResult = DataStatus.Failed(errorMessage)
-                    )
-                }
-            }
-        }
 
     private val _state: MutableStateFlow<UIState> =
         MutableStateFlow(UIState())
     val state: StateFlow<UIState> = _state
 
     init {
-        issueReportClient.addIssueReportListener(issueReportListener)
+        issueReportClient.addIssueReportListener(this)
         getLogsFile()
     }
 
@@ -72,6 +53,26 @@ class UploadLogViewModel(context: Application) : AndroidViewModel(context) {
 
     fun loggingId(): String {
         return issueReportClient.loggingId()
+    }
+
+    override fun onRecordUploadSuccess(record: Record) {
+        _state.update {
+            it.copy(
+                uploadResult = DataStatus.Success(Unit)
+            )
+        }
+        getLogsFile()
+    }
+
+    override fun onRecordUploadFailed(
+        record: Record,
+        errorMessage: String
+    ) {
+        _state.update {
+            it.copy(
+                uploadResult = DataStatus.Failed(errorMessage)
+            )
+        }
     }
 
     data class UIState(
