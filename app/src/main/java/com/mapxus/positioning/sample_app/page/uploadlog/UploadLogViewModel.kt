@@ -35,7 +35,9 @@ class UploadLogViewModel(context: Application) : AndroidViewModel(context),
 
         _state.update {
             it.copy(
-                records = if (logs.isNotEmpty()) DataStatus.Success(logs) else DataStatus.Failed("Empty")
+                records = if (logs.isNotEmpty())
+                    DataStatus.Success(logs)
+                else DataStatus.Failed("Empty")
             )
         }
     }
