@@ -36,7 +36,22 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            storeFile file("../maphive.jks")
+            keyAlias secretProperties['keyAlias']
+            keyPassword secretProperties['keyPassword']
+            storePassword secretProperties['storePassword']
+        }
+    }
+
     buildTypes {
+        release {
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+
         debug {
             debuggable true
         }
