@@ -75,7 +75,7 @@ android {
 }
 
 dependencies {
-    def positioningVersion = "3.0.6"
+    def positioningVersion = "3.1.0-beta.local.1110.1"
     implementation "com.mapxus.positioning:positioning:$positioningVersion"
 
     //mapxus

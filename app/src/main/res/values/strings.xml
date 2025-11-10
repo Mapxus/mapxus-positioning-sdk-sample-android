@@ -2,6 +2,7 @@
     <string name="app_name">Positioning Sample App</string>
     <string name="positioning">Positioning</string>
     <string name="check_readiness">Check Readiness</string>
+    <string name="calibration">Calibration</string>
     <string name="upload_record">Upload record</string>
     <string name="step_length_config">Step Length Config</string>
 </resources>

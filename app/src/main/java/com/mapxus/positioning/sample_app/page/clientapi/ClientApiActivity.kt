@@ -37,6 +37,7 @@ import com.mapxus.common.ui.lib.utils.DeviceUtils
 import com.mapxus.positioning.api.positioning.MapxusPositioningClient
 import com.mapxus.positioning.sample_app.BuildConfig
 import com.mapxus.positioning.sample_app.R
+import com.mapxus.positioning.sample_app.page.calibration.CalibrationActivity
 import com.mapxus.positioning.sample_app.page.positioning.PositioningActivity
 import com.mapxus.positioning.sample_app.page.readiness.CheckReadinessScreen
 import com.mapxus.positioning.sample_app.page.steplength.StepLengthConfigActivity
@@ -233,6 +234,13 @@ fun MainContent(
                                 )
                             }
                         },
+                        onCalibrationButtonClick = {
+                            context.startActivity(
+                                Intent(
+                                    context, CalibrationActivity::class.java
+                                )
+                            )
+                        },
                         onCheckReadinessClick = {
                             navController.navigate(Screen.READINESS_SCREEN) {
                                 popUpTo(Screen.MAIN)
@@ -266,6 +274,7 @@ fun MainContent(
 private fun ClientAPITestScreen(
     modifier: Modifier = Modifier,
     onPositioningButtonClick: () -> Unit,
+    onCalibrationButtonClick: () -> Unit,
     onCheckReadinessClick: () -> Unit,
     onUploadRecordButtonClick: () -> Unit,
     onStepLengthConfigClick: () -> Unit,
@@ -279,6 +288,10 @@ private fun ClientAPITestScreen(
 
         TextButton(text = stringResource(id = R.string.positioning), onClick = {
             onPositioningButtonClick()
+        })
+
+        TextButton(text = stringResource(id = R.string.calibration), onClick = {
+            onCalibrationButtonClick()
         })
 
         TextButton(text = stringResource(R.string.check_readiness), onClick = {
