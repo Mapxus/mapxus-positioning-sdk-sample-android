@@ -109,7 +109,13 @@ fun CalibrationMainScreen(
                         }
                     )
                     result.add("reset" to {
-                        viewModel.reset()
+                        val resetResult = viewModel.reset()
+                        val message = if (resetResult) {
+                            "Reset Success"
+                        } else {
+                            "Reset Failed ，please stop calibrate first"
+                        }
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                     })
                 }
                 result

@@ -94,9 +94,7 @@ class CalibrationActivityViewModel(context: Application) :
         currentJob?.cancel()
     }
 
-    fun reset() {
-        mapxusCalibrationClient!!.reset()
-    }
+    fun reset() = mapxusCalibrationClient!!.reset()
 
     fun updateCalibratorName(value: String) {
         _calibrationActivityUiState.update {
