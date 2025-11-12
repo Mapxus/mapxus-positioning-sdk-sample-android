@@ -18,6 +18,7 @@ import com.mapxus.positioning.sample_app.ui.component.TextButton
 fun CheckReadinessScreen(
     modifier: Modifier = Modifier,
     onCheckPositioningReadinessClick: () -> Unit,
+    onCheckCalibrationReadinessClick: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -28,6 +29,10 @@ fun CheckReadinessScreen(
 
         TextButton(text = "Check Positioning Readiness", onClick = {
             onCheckPositioningReadinessClick()
+        })
+
+        TextButton(text = "Check Calibration Readiness", onClick = {
+            onCheckCalibrationReadinessClick()
         })
     }
 }

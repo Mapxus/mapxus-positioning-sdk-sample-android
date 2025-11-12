@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mapxus.common.ui.lib.utils.DeviceUtils
+import com.mapxus.positioning.api.calibration.MapxusCalibrationClient
 import com.mapxus.positioning.api.positioning.MapxusPositioningClient
 import com.mapxus.positioning.sample_app.BuildConfig
 import com.mapxus.positioning.sample_app.R
@@ -65,6 +66,10 @@ private const val TAG = "ClientApiActivity"
 class ClientApiActivity : AppCompatActivity() {
     private val mapxusPositioningClient by lazy {
         MapxusPositioningClient.getInstance(applicationContext)
+    }
+
+    private val mapxusCalibrationClient by lazy {
+        MapxusCalibrationClient.getInstance(applicationContext)
     }
 
     private val startActivityLauncher: ActivityResultLauncher<Intent> =
@@ -146,6 +151,7 @@ class ClientApiActivity : AppCompatActivity() {
         setContent {
             MainContent(
                 mapxusPositioningClient,
+                mapxusCalibrationClient,
                 startActivityWithCheck = {
                     startActivityWithCheck(it)
                 }
@@ -157,6 +163,7 @@ class ClientApiActivity : AppCompatActivity() {
 @Composable
 fun MainContent(
     mapxusPositioningClient: MapxusPositioningClient,
+    mapxusCalibrationClient: MapxusCalibrationClient,
     startActivityWithCheck: (() -> Unit) -> Unit,
 
     ) {
@@ -212,6 +219,15 @@ fun MainContent(
                         modifier = Modifier.padding(innerPadding),
                         onCheckPositioningReadinessClick = {
                             mapxusPositioningClient.checkReadiness {
+                                scope.launch {
+                                    snackbarHostState.userFeedbackInfoToSnackbar(it.takeIf { it.isNotEmpty() }
+                                        ?.first())
+                                }
+                            }
+                        },
+
+                        onCheckCalibrationReadinessClick = {
+                            mapxusCalibrationClient.checkReadiness {
                                 scope.launch {
                                     snackbarHostState.userFeedbackInfoToSnackbar(it.takeIf { it.isNotEmpty() }
                                         ?.first())
