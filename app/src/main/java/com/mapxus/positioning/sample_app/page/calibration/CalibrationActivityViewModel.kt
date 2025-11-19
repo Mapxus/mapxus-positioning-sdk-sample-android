@@ -26,7 +26,8 @@ import kotlinx.coroutines.withContext
  */
 class CalibrationActivityViewModel(context: Application) :
     AndroidViewModel(context) {
-    private var mapxusCalibrationClient: MapxusCalibrationClient? = null
+    private var mapxusCalibrationClient: MapxusCalibrationClient =
+        MapxusCalibrationClient.getInstance(context.applicationContext)
 
     private var currentJob: Job? = null
 
@@ -77,13 +78,11 @@ class CalibrationActivityViewModel(context: Application) :
     }
 
     init {
-        mapxusCalibrationClient =
-            MapxusCalibrationClient.getInstance(context.applicationContext)
-        mapxusCalibrationClient!!.addCalibrationListener(listener)
+        mapxusCalibrationClient.addCalibrationListener(listener)
     }
 
     fun stop() {
-        mapxusCalibrationClient!!.stop()
+        mapxusCalibrationClient.stop()
         _calibrationActivityUiState.update {
             it.copy(
                 counterDownText = "",
@@ -94,7 +93,7 @@ class CalibrationActivityViewModel(context: Application) :
         currentJob?.cancel()
     }
 
-    fun reset() = mapxusCalibrationClient!!.reset()
+    fun reset() = mapxusCalibrationClient.reset()
 
     fun updateCalibratorName(value: String) {
         _calibrationActivityUiState.update {
@@ -162,12 +161,12 @@ class CalibrationActivityViewModel(context: Application) :
             )
         }
 
-        mapxusCalibrationClient!!.start()
+        mapxusCalibrationClient.start()
         return true
     }
 
     private fun finishAndCalibrate(calibratorName: String, calibratorHeight: Double) {
-        mapxusCalibrationClient!!.finishAndCalibrate(calibratorName, calibratorHeight)
+        mapxusCalibrationClient.finishAndCalibrate(calibratorName, calibratorHeight)
         _calibrationActivityUiState.update {
             it.copy(
                 isShowLoading = true
