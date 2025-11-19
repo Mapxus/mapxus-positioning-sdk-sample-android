@@ -31,9 +31,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.mapxus.positioning.api.positioning.MapxusPositioningClient
 import com.mapxus.positioning.sample_app.R
 import com.mapxus.positioning.sample_app.ui.component.ButtonGrid
 import com.mapxus.positioning.sample_app.ui.component.CommonTopAppBar
+import com.mapxus.positioning.sample_app.ui.component.CurrentStepLength
 import com.mapxus.positioning.sample_app.ui.component.LoadingCircle
 import com.mapxus.positioning.sample_app.ui.component.MapxusToast
 import com.mapxus.positioning.sample_app.ui.component.MapxusToastData
@@ -65,7 +67,7 @@ fun CalibrationMainScreen(
         modifier = Modifier.navigationBarsPadding(),
         topBar = {
             CommonTopAppBar(
-                text = stringResource(R.string.upload_record)
+                text = stringResource(R.string.calibration)
             ) {
                 dispatcher?.onBackPressed()
             }
@@ -153,6 +155,7 @@ fun CalibrationMainScreen(
                 Text(text = calibrationActivityUiState.counterDownText)
             }
 
+            CurrentStepLength(MapxusPositioningClient.getInstance(context).stepLength.toString())
         }
     }
 }
