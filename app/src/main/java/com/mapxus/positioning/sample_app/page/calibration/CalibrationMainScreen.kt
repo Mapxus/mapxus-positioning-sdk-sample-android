@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.mapxus.positioning.api.positioning.MapxusPositioningClient
 import com.mapxus.positioning.sample_app.R
 import com.mapxus.positioning.sample_app.ui.component.ButtonGrid
 import com.mapxus.positioning.sample_app.ui.component.CommonTopAppBar
@@ -156,7 +155,7 @@ fun CalibrationMainScreen(
                 Text(text = calibrationActivityUiState.counterDownText)
             }
 
-            CurrentStepLength(MapxusPositioningClient.getInstance(context).stepLength.keepTwo())
+            CurrentStepLength(calibrationActivityUiState.stepLength.keepTwo())
         }
     }
 }
