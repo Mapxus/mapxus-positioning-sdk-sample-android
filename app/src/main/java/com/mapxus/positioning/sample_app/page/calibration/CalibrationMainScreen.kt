@@ -41,6 +41,7 @@ import com.mapxus.positioning.sample_app.ui.component.MapxusToast
 import com.mapxus.positioning.sample_app.ui.component.MapxusToastData
 import com.mapxus.positioning.sample_app.ui.component.OutlinedTextFieldCommon
 import com.mapxus.positioning.sample_app.utils.commonToMapxusToastData
+import com.mapxus.positioning.sample_app.utils.keepTwo
 import com.mapxus.positioning.sample_app.utils.logI
 import kotlinx.coroutines.launch
 
@@ -155,7 +156,7 @@ fun CalibrationMainScreen(
                 Text(text = calibrationActivityUiState.counterDownText)
             }
 
-            CurrentStepLength(MapxusPositioningClient.getInstance(context).stepLength.toString())
+            CurrentStepLength(MapxusPositioningClient.getInstance(context).stepLength.keepTwo())
         }
     }
 }
