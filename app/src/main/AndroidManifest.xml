@@ -36,6 +36,15 @@
             android:value="${secret}" />
 
         <activity
+            android:name=".page.calibration.CalibrationActivity"
+            android:exported="false"
+            android:label="@string/calibration">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mapxus.positioning.sample_app.page.clientapi.ClientApiActivity" />
+        </activity>
+
+        <activity
             android:name="com.mapxus.positioning.sample_app.page.positioning.PositioningActivity"
             android:exported="true"
             android:label="@string/positioning">

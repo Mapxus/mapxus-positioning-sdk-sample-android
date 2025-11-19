@@ -27,15 +27,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mapxus.common.ui.lib.utils.DeviceUtils
+import com.mapxus.positioning.api.calibration.MapxusCalibrationClient
 import com.mapxus.positioning.api.positioning.MapxusPositioningClient
 import com.mapxus.positioning.sample_app.BuildConfig
 import com.mapxus.positioning.sample_app.R
+import com.mapxus.positioning.sample_app.page.calibration.CalibrationActivity
 import com.mapxus.positioning.sample_app.page.positioning.PositioningActivity
 import com.mapxus.positioning.sample_app.page.readiness.CheckReadinessScreen
 import com.mapxus.positioning.sample_app.page.steplength.StepLengthConfigActivity
@@ -63,6 +66,10 @@ private const val TAG = "ClientApiActivity"
 class ClientApiActivity : AppCompatActivity() {
     private val mapxusPositioningClient by lazy {
         MapxusPositioningClient.getInstance(applicationContext)
+    }
+
+    private val mapxusCalibrationClient by lazy {
+        MapxusCalibrationClient.getInstance(applicationContext)
     }
 
     private val startActivityLauncher: ActivityResultLauncher<Intent> =
@@ -142,104 +149,137 @@ class ClientApiActivity : AppCompatActivity() {
         "Device info : ${Build.DEVICE} ${Build.MODEL} ${Build.BRAND} ".logI(TAG)
         checkPermission()
         setContent {
-            AppTheme {
-                val navController = rememberNavController()
-                val scope = rememberCoroutineScope()
-                val snackbarHostState = remember { SnackbarHostState() }
+            MainContent(
+                mapxusPositioningClient,
+                mapxusCalibrationClient,
+                startActivityWithCheck = {
+                    startActivityWithCheck(it)
+                }
+            )
+        }
+    }
+}
 
-                Scaffold(
-                    topBar = {
-                        CommonTopAppBar(
-                            text = stringResource(R.string.app_name)
+@Composable
+fun MainContent(
+    mapxusPositioningClient: MapxusPositioningClient,
+    mapxusCalibrationClient: MapxusCalibrationClient,
+    startActivityWithCheck: (() -> Unit) -> Unit,
+
+    ) {
+    AppTheme {
+        val navController = rememberNavController()
+        val scope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val context = LocalContext.current
+
+        Scaffold(
+            topBar = {
+                CommonTopAppBar(
+                    text = stringResource(R.string.app_name)
+                )
+            },
+            snackbarHost = {
+                SnackbarHost(
+                    modifier = Modifier
+                        .padding(bottom = 50.dp),
+                    hostState = snackbarHostState,
+                ) {
+                    val (color, iconRes) = it.visuals.actionLabel!!.userFeedbackInfoToMapxusToastData()
+                    MapxusToast(
+                        data = MapxusToastData(
+                            title = it.visuals.actionLabel!!,
+                            message = it.visuals.message,
+                            color,
+                            iconRes
                         )
-                    },
-                    snackbarHost = {
-                        SnackbarHost(
-                            modifier = Modifier
-                                .padding(bottom = 50.dp),
-                            hostState = snackbarHostState,
-                        ) {
-                            val (color, iconRes) = it.visuals.actionLabel!!.userFeedbackInfoToMapxusToastData()
-                            MapxusToast(
-                                data = MapxusToastData(
-                                    title = it.visuals.actionLabel!!,
-                                    message = it.visuals.message,
-                                    color,
-                                    iconRes
+                    )
+                }
+            },
+            bottomBar = {
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp)
+                ) {
+                    Column {
+                        Text(text = "SDK Version ${com.mapxus.positioning.BuildConfig.VERSION_NAME}")
+                        Text(text = "App Version ${BuildConfig.VERSION_NAME}")
+                    }
+                }
+            },
+            modifier = Modifier
+                .navigationBarsPadding()
+                .fillMaxSize()
+        ) { innerPadding ->
+            NavHost(navController = navController, startDestination = Screen.MAIN) {
+                composable(Screen.READINESS_SCREEN) {
+                    CheckReadinessScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        onCheckPositioningReadinessClick = {
+                            mapxusPositioningClient.checkReadiness {
+                                scope.launch {
+                                    snackbarHostState.userFeedbackInfoToSnackbar(it.takeIf { it.isNotEmpty() }
+                                        ?.first())
+                                }
+                            }
+                        },
+
+                        onCheckCalibrationReadinessClick = {
+                            mapxusCalibrationClient.checkReadiness {
+                                scope.launch {
+                                    snackbarHostState.userFeedbackInfoToSnackbar(it.takeIf { it.isNotEmpty() }
+                                        ?.first())
+                                }
+                            }
+                        },
+                    )
+                }
+
+                composable(Screen.MAIN) {
+                    ClientAPITestScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        onPositioningButtonClick = {
+                            startActivityWithCheck {
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        PositioningActivity::class.java
+                                    )
+                                )
+                            }
+                        },
+                        onCalibrationButtonClick = {
+                            context.startActivity(
+                                Intent(
+                                    context, CalibrationActivity::class.java
+                                )
+                            )
+                        },
+                        onCheckReadinessClick = {
+                            navController.navigate(Screen.READINESS_SCREEN) {
+                                popUpTo(Screen.MAIN)
+                            }
+
+                        },
+                        onUploadRecordButtonClick = {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    UploadLogActivity::class.java
+                                )
+                            )
+                        },
+                        onStepLengthConfigClick = {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    StepLengthConfigActivity::class.java
                                 )
                             )
                         }
-                    },
-                    bottomBar = {
-                        Box(
-                            contentAlignment = Alignment.BottomCenter,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 20.dp)
-                        ) {
-                            Column {
-                                Text(text = "SDK Version ${com.mapxus.positioning.BuildConfig.VERSION_NAME}")
-                                Text(text = "App Version ${BuildConfig.VERSION_NAME}")
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .fillMaxSize()
-                ) { innerPadding ->
-                    NavHost(navController = navController, startDestination = Screen.MAIN) {
-                        composable(Screen.READINESS_SCREEN) {
-                            CheckReadinessScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                onCheckPositioningReadinessClick = {
-                                    mapxusPositioningClient.checkReadiness {
-                                        scope.launch {
-                                            snackbarHostState.userFeedbackInfoToSnackbar(it.takeIf { it.isNotEmpty() }
-                                                ?.first())
-                                        }
-                                    }
-                                },
-                            )
-                        }
-
-                        composable(Screen.MAIN) {
-                            ClientAPITestScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                onPositioningButtonClick = {
-                                    startActivityWithCheck {
-                                        startActivity(
-                                            Intent(
-                                                this@ClientApiActivity,
-                                                PositioningActivity::class.java
-                                            )
-                                        )
-                                    }
-                                },
-                                onCheckReadinessClick = {
-                                    navController.navigate(Screen.READINESS_SCREEN) {
-                                        popUpTo(Screen.MAIN)
-                                    }
-
-                                },
-                                onUploadRecordButtonClick = {
-                                    startActivity(
-                                        Intent(
-                                            this@ClientApiActivity,
-                                            UploadLogActivity::class.java
-                                        )
-                                    )
-                                },
-                                onStepLengthConfigClick = {
-                                    startActivity(
-                                        Intent(
-                                            this@ClientApiActivity,
-                                            StepLengthConfigActivity::class.java
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -250,6 +290,7 @@ class ClientApiActivity : AppCompatActivity() {
 private fun ClientAPITestScreen(
     modifier: Modifier = Modifier,
     onPositioningButtonClick: () -> Unit,
+    onCalibrationButtonClick: () -> Unit,
     onCheckReadinessClick: () -> Unit,
     onUploadRecordButtonClick: () -> Unit,
     onStepLengthConfigClick: () -> Unit,
@@ -263,6 +304,10 @@ private fun ClientAPITestScreen(
 
         TextButton(text = stringResource(id = R.string.positioning), onClick = {
             onPositioningButtonClick()
+        })
+
+        TextButton(text = stringResource(id = R.string.calibration), onClick = {
+            onCalibrationButtonClick()
         })
 
         TextButton(text = stringResource(R.string.check_readiness), onClick = {
