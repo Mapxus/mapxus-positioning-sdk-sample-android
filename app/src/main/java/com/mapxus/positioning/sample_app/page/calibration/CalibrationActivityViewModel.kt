@@ -8,6 +8,7 @@ import com.mapxus.positioning.api.UserFeedbackInfo
 import com.mapxus.positioning.api.UserFeedbackType
 import com.mapxus.positioning.api.calibration.MapxusCalibrationClient
 import com.mapxus.positioning.api.calibration.MapxusCalibrationListener
+import com.mapxus.positioning.api.positioning.MapxusPositioningClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -26,7 +27,11 @@ import kotlinx.coroutines.withContext
  */
 class CalibrationActivityViewModel(context: Application) :
     AndroidViewModel(context) {
-    private var mapxusCalibrationClient: MapxusCalibrationClient? = null
+    private val mapxusCalibrationClient: MapxusCalibrationClient =
+        MapxusCalibrationClient.getInstance(context.applicationContext)
+
+    private val mapxusPositioningClient: MapxusPositioningClient =
+        MapxusPositioningClient.getInstance(context.applicationContext)
 
     private var currentJob: Job? = null
 
@@ -51,6 +56,12 @@ class CalibrationActivityViewModel(context: Application) :
                 "onCalibrationSuccess",
                 Toast.LENGTH_LONG
             ).show()
+
+            _calibrationActivityUiState.update {
+                it.copy(
+                    stepLength = mapxusPositioningClient.stepLength
+                )
+            }
         }
 
         override fun onCalibrationStopped() {
@@ -77,13 +88,16 @@ class CalibrationActivityViewModel(context: Application) :
     }
 
     init {
-        mapxusCalibrationClient =
-            MapxusCalibrationClient.getInstance(context.applicationContext)
-        mapxusCalibrationClient!!.addCalibrationListener(listener)
+        mapxusCalibrationClient.addCalibrationListener(listener)
+        _calibrationActivityUiState.update {
+            it.copy(
+                stepLength = mapxusPositioningClient.stepLength
+            )
+        }
     }
 
     fun stop() {
-        mapxusCalibrationClient!!.stop()
+        mapxusCalibrationClient.stop()
         _calibrationActivityUiState.update {
             it.copy(
                 counterDownText = "",
@@ -94,7 +108,15 @@ class CalibrationActivityViewModel(context: Application) :
         currentJob?.cancel()
     }
 
-    fun reset() = mapxusCalibrationClient!!.reset()
+    fun reset(): Boolean {
+        val result = mapxusCalibrationClient.reset()
+        _calibrationActivityUiState.update {
+            it.copy(
+                stepLength = mapxusPositioningClient.stepLength
+            )
+        }
+        return result
+    }
 
     fun updateCalibratorName(value: String) {
         _calibrationActivityUiState.update {
@@ -162,12 +184,12 @@ class CalibrationActivityViewModel(context: Application) :
             )
         }
 
-        mapxusCalibrationClient!!.start()
+        mapxusCalibrationClient.start()
         return true
     }
 
     private fun finishAndCalibrate(calibratorName: String, calibratorHeight: Double) {
-        mapxusCalibrationClient!!.finishAndCalibrate(calibratorName, calibratorHeight)
+        mapxusCalibrationClient.finishAndCalibrate(calibratorName, calibratorHeight)
         _calibrationActivityUiState.update {
             it.copy(
                 isShowLoading = true
@@ -185,5 +207,6 @@ data class CalibrationActivityUiState(
     val calibratorHeight: String = "",
     val counterDownText: String = "",
     val isShowLoading: Boolean = false,
+    val stepLength: Double = 0.0,
     val isRunning: Boolean = false,
 )

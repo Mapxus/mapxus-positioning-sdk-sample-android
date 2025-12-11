@@ -34,11 +34,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.mapxus.positioning.sample_app.R
 import com.mapxus.positioning.sample_app.ui.component.ButtonGrid
 import com.mapxus.positioning.sample_app.ui.component.CommonTopAppBar
+import com.mapxus.positioning.sample_app.ui.component.CurrentStepLength
 import com.mapxus.positioning.sample_app.ui.component.LoadingCircle
 import com.mapxus.positioning.sample_app.ui.component.MapxusToast
 import com.mapxus.positioning.sample_app.ui.component.MapxusToastData
 import com.mapxus.positioning.sample_app.ui.component.OutlinedTextFieldCommon
 import com.mapxus.positioning.sample_app.utils.commonToMapxusToastData
+import com.mapxus.positioning.sample_app.utils.keepTwo
 import com.mapxus.positioning.sample_app.utils.logI
 import kotlinx.coroutines.launch
 
@@ -65,7 +67,7 @@ fun CalibrationMainScreen(
         modifier = Modifier.navigationBarsPadding(),
         topBar = {
             CommonTopAppBar(
-                text = stringResource(R.string.upload_record)
+                text = stringResource(R.string.calibration)
             ) {
                 dispatcher?.onBackPressed()
             }
@@ -153,6 +155,7 @@ fun CalibrationMainScreen(
                 Text(text = calibrationActivityUiState.counterDownText)
             }
 
+            CurrentStepLength(calibrationActivityUiState.stepLength.keepTwo())
         }
     }
 }

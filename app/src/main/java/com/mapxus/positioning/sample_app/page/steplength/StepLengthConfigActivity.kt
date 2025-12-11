@@ -24,6 +24,7 @@ import com.mapxus.positioning.sample_app.ui.component.CommonTopAppBar
 import com.mapxus.positioning.sample_app.ui.component.CurrentStepLength
 import com.mapxus.positioning.sample_app.ui.component.InputStepLength
 import com.mapxus.positioning.sample_app.ui.theme.AppTheme
+import com.mapxus.positioning.sample_app.utils.keepTwo
 import com.mapxus.positioning.sample_app.utils.logI
 
 private const val TAG: String = "StepLengthConfigActivity"
@@ -90,7 +91,7 @@ private fun MainContent(viewModel: StepLengthConfigActivityViewModel = viewModel
                 }
             )
 
-            CurrentStepLength(uiState.stepLength.toString())
+            CurrentStepLength(uiState.stepLength?.keepTwo() ?: "")
         }
     }
 }
