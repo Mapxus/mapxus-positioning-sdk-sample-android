@@ -40,17 +40,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mapxus.common.ui.lib.utils.DataStatus
 import com.mapxus.positioning.api.issuereport.Record
 import com.mapxus.positioning.sample_app.R
 import com.mapxus.positioning.sample_app.ui.component.CommonTopAppBar
 import com.mapxus.positioning.sample_app.ui.component.LoadingCircle
+import com.mapxus.positioning.sample_app.ui.component.LoadingCircleWithProgressBar
 import com.mapxus.positioning.sample_app.ui.component.MapxusToast
 import com.mapxus.positioning.sample_app.ui.component.MapxusToastData
 import com.mapxus.positioning.sample_app.ui.component.TitleText
 import com.mapxus.positioning.sample_app.ui.icons.CloudUpload
 import com.mapxus.positioning.sample_app.ui.theme.AppTheme
+import com.mapxus.positioning.sample_app.utils.HHmmss
+import com.mapxus.positioning.sample_app.utils.bytesToMb
 import com.mapxus.positioning.sample_app.utils.commonToMapxusToastData
+import com.mapxus.positioning.sample_app.utils.keepTwo
 import com.mapxus.positioning.sample_app.utils.logD
 import kotlinx.coroutines.launch
 
@@ -78,15 +83,25 @@ class UploadLogActivity : AppCompatActivity() {
 
 @Preview
 @Composable
-private fun MainContent(viewModel: UploadLogViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+private fun MainContent(viewModel: UploadLogViewModel = viewModel()) {
     val uiState by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val dispatcher: OnBackPressedDispatcher? =
         LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-
     ShowUiTips(uiState.uploadResult, snackbarHostState)
 
-    LoadingCircle(uiState.isLoading)
+    if (uiState.isLoading) {
+        if (uiState.totalSize == 0L) {
+            LoadingCircle()
+        } else {
+            LoadingCircleWithProgressBar(
+                true,
+                uiState.progress,
+                uiState.writtenSize,
+                uiState.totalSize
+            )
+        }
+    }
 
     Scaffold(
         modifier = Modifier.navigationBarsPadding(),
@@ -166,6 +181,7 @@ private fun MainContent(viewModel: UploadLogViewModel = androidx.lifecycle.viewm
 
         }
     }
+
 }
 
 @Composable
@@ -217,13 +233,21 @@ private fun LogsList(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = log.date.toString(),
-                    textAlign = TextAlign.Center,
-                    fontSize = 15.sp,
-                    color = Color(0xFF545454),
-                    modifier = Modifier.padding(start = 20.dp)
-                )
+                Column(
+
+                ) {
+                    LogItem(
+                        text = log.date.toString(),
+                        textSize = 15
+                    )
+                    LogItem(
+                        text = "start ${log.startTimestamp.HHmmss()} , end ${log.endTimestamp.HHmmss()} , size ${
+                            log.fileSize.bytesToMb().keepTwo()
+                        } MB",
+                        textSize = 10
+                    )
+                }
+
                 IconButton(
                     onClick = {
                         onUploadButtonClicked(log)
@@ -239,4 +263,18 @@ private fun LogsList(
 
         })
     }
+}
+
+@Composable
+private fun LogItem(
+    text: String,
+    textSize: Int,
+) {
+    Text(
+        text = text,
+        textAlign = TextAlign.Start,
+        fontSize = textSize.sp,
+        color = Color(0xFF545454),
+        modifier = Modifier.padding(start = 20.dp)
+    )
 }

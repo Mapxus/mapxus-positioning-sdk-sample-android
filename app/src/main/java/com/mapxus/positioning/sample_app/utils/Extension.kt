@@ -44,6 +44,10 @@ fun View.gone() {
     this.visibility = View.GONE
 }
 
+fun Long.bytesToMb(): Double {
+    return this / (1024.0 * 1024.0)
+}
+
 fun Double.keepOne(): String = "%.1f".format(this)
 fun Double.keepTwo(): String = "%.2f".format(this)
 fun Double.keepThree(): String = "%.3f".format(this)
