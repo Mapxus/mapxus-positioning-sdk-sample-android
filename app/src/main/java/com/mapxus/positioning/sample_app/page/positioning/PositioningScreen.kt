@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.mapxus.map.mapxusmap.api.map.FollowUserMode
 import com.mapxus.map.mapxusmap.api.map.MapxusMap
+import com.mapxus.map.mapxusmap.api.map.MapxusMapZoomMode
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusMap
 import com.mapxus.positioning.sample_app.page.positioning.ui.BottomContainer
 import com.mapxus.positioning.sample_app.page.positioning.ui.LeftContainer
@@ -37,6 +39,14 @@ fun PositioningScreen(
     val positioningActivityUiState by viewModel.positioningActivityUiState.collectAsState()
     var mapxusMap by remember { mutableStateOf<MapxusMap?>(null) }
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
+
+    LaunchedEffect(positioningActivityUiState.currentLocation) {
+        positioningActivityUiState.currentLocation?.mapxusFloor?.id?.let { floorId ->
+            if (mapxusMap?.followUserMode == FollowUserMode.NONE) {
+                mapxusMap?.selectFloorById(floorId, MapxusMapZoomMode.ZoomDisable, null)
+            }
+        }
+    }
 
     LifecycleEffect(
         onPause = {

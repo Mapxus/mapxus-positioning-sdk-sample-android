@@ -294,7 +294,11 @@ class PositioningActivityViewModel(
             updateSiteInfo(location)
         }
 
-        currentLocation = location
+        _positioningActivityUiState.update {
+            it.copy(
+                currentLocation = location,
+            )
+        }
 
         //处理蓝点位置更新
         val theLocation = Location("MapxusPositioning")
