@@ -3,14 +3,18 @@ agp = "8.10.1"
 kotlin = "2.0.21"
 material = "1.6.1"
 material3 = "1.2.1"
-mapxus-positioning = "3.1.5"
+mapxus-positioning = "3.1.5-gestureadapted-beta.local.3"
 mapxus-map = "11.0.0"
 navigation-compose = "2.7.2"
 compose-bom = "2023.09.01"
 permissionx = "1.6.1"
 datastore-preferences = "1.1.7"
+coil-compose = "2.7.0"
+coil-gif = "2.7.0"
 
 [libraries]
+coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil-gif" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 mapxus-positioning = { module = "com.mapxus.positioning:positioning", version.ref = "mapxus-positioning" }
 mapxus-map = { module = "com.mapxus.map:mapxusmap", version.ref = "mapxus-map" }

@@ -21,12 +21,12 @@ import com.mapxus.map.mapxusmap.api.map.MapxusMapZoomMode
 import com.mapxus.positioning.sample_app.page.positioning.mapview.MapxusMap
 import com.mapxus.positioning.sample_app.page.positioning.ui.BottomContainer
 import com.mapxus.positioning.sample_app.page.positioning.ui.LeftContainer
+import com.mapxus.positioning.sample_app.page.positioning.ui.PoorAccuracyNeedCalibratingDialog
 import com.mapxus.positioning.sample_app.ui.component.LifecycleEffect
 import com.mapxus.positioning.sample_app.ui.component.LoadingDialog
 import com.mapxus.positioning.sample_app.ui.component.MapxusToastContainer
 import com.mapxus.positioning.sample_app.utils.showToast
 import com.mapxus.positioning.sample_app.utils.toMapxusToastData
-import org.maplibre.android.maps.MapLibreMap
 
 private const val TAG = "PositioningScreen"
 
@@ -38,7 +38,6 @@ fun PositioningScreen(
 
     val positioningActivityUiState by viewModel.positioningActivityUiState.collectAsState()
     var mapxusMap by remember { mutableStateOf<MapxusMap?>(null) }
-    var map by remember { mutableStateOf<MapLibreMap?>(null) }
 
     LaunchedEffect(positioningActivityUiState.currentLocation) {
         positioningActivityUiState.currentLocation?.mapxusFloor?.id?.let { floorId ->
@@ -56,6 +55,14 @@ fun PositioningScreen(
         }
     )
 
+    if (positioningActivityUiState.isShowPoorAccuracyNeedCalibratingDialog) {
+        PoorAccuracyNeedCalibratingDialog(
+            compassAccuracy = positioningActivityUiState.currentAccuracyLevel
+        ) {
+            viewModel.dismissPoorAccuracyNeedCalibratingDialogAndResumePositioning()
+        }
+    }
+
     LoadingDialog(positioningActivityUiState.isShowLoadingDialog)
     //background
     MapxusMap(
@@ -67,9 +74,6 @@ fun PositioningScreen(
             mapxusMap = it
             //core sdk 方法 ，将对象设置进map中
             it.setLocationProvider(viewModel.mapxusPositioningProvider)
-        },
-        onGetMap = {
-            map = it
         },
     )
 

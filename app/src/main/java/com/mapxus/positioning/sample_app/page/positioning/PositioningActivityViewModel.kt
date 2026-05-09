@@ -14,6 +14,7 @@ import com.mapxus.map.mapxusmap.api.services.model.floor.SharedFloor
 import com.mapxus.map.mapxusmap.api.services.model.venue.VenueInfo
 import com.mapxus.map.mapxusmap.positioning.IndoorLocation
 import com.mapxus.positioning.api.UserFeedbackInfo
+import com.mapxus.positioning.api.positioning.DirectionAccuracy
 import com.mapxus.positioning.api.positioning.MapxusFloor
 import com.mapxus.positioning.api.positioning.MapxusLocation
 import com.mapxus.positioning.api.positioning.MapxusPositioningClient
@@ -113,13 +114,11 @@ class PositioningActivityViewModel(
      *
      * core sdk 监听跟随模式变化
      */
-    val followUserModeChangedListener = object : MapxusMap.OnFollowUserModeChangedListener {
-        override fun OnFollowUserModeChanged(p0: Int) {
-            _positioningActivityUiState.update {
-                it.copy(
-                    followUserMode = p0
-                )
-            }
+    val followUserModeChangedListener = MapxusMap.OnFollowUserModeChangedListener { p0 ->
+        _positioningActivityUiState.update {
+            it.copy(
+                followUserMode = p0
+            )
         }
     }
 
@@ -289,6 +288,23 @@ class PositioningActivityViewModel(
         mapxusPositioningProvider.dispatchCompassChange(bearing, 0)
     }
 
+    override fun onDirectionAccuracyChange(accuracy: DirectionAccuracy) {
+        if (accuracy == DirectionAccuracy.LOW) {
+            mapxusPositioningClient.pause()
+            _positioningActivityUiState.update {
+                it.copy(
+                    isShowPoorAccuracyNeedCalibratingDialog = true
+                )
+            }
+        }
+
+        _positioningActivityUiState.update {
+            it.copy(
+                currentAccuracyLevel = accuracy
+            )
+        }
+    }
+
     override fun onLocationChange(location: MapxusLocation) {
         if (currentLocation?.mapxusFloor?.id != location.mapxusFloor?.id) {
             updateSiteInfo(location)
@@ -406,4 +422,11 @@ class PositioningActivityViewModel(
         }
     }
 
+    fun dismissPoorAccuracyNeedCalibratingDialogAndResumePositioning() {
+        _positioningActivityUiState.update {
+            it.copy(
+                isShowPoorAccuracyNeedCalibratingDialog = false
+            )
+        }
+    }
 }
