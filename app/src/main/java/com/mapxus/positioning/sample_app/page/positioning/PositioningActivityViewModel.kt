@@ -14,7 +14,7 @@ import com.mapxus.map.mapxusmap.api.services.model.floor.SharedFloor
 import com.mapxus.map.mapxusmap.api.services.model.venue.VenueInfo
 import com.mapxus.map.mapxusmap.positioning.IndoorLocation
 import com.mapxus.positioning.api.UserFeedbackInfo
-import com.mapxus.positioning.api.positioning.DirectionAccuracy
+import com.mapxus.positioning.api.positioning.BearingAccuracy
 import com.mapxus.positioning.api.positioning.MapxusFloor
 import com.mapxus.positioning.api.positioning.MapxusLocation
 import com.mapxus.positioning.api.positioning.MapxusPositioningClient
@@ -288,8 +288,8 @@ class PositioningActivityViewModel(
         mapxusPositioningProvider.dispatchCompassChange(bearing, 0)
     }
 
-    override fun onDirectionAccuracyChange(accuracy: DirectionAccuracy) {
-        if (accuracy == DirectionAccuracy.LOW) {
+    override fun onBearingAccuracyChange(accuracy: BearingAccuracy) {
+        if (accuracy == BearingAccuracy.LOW) {
             mapxusPositioningClient.pause()
             _positioningActivityUiState.update {
                 it.copy(
@@ -301,6 +301,15 @@ class PositioningActivityViewModel(
         _positioningActivityUiState.update {
             it.copy(
                 currentAccuracyLevel = accuracy
+            )
+        }
+    }
+
+    fun dismissPoorAccuracyNeedCalibratingDialogAndResumePositioning() {
+        mapxusPositioningClient.resume()
+        _positioningActivityUiState.update {
+            it.copy(
+                isShowPoorAccuracyNeedCalibratingDialog = false
             )
         }
     }
@@ -418,14 +427,6 @@ class PositioningActivityViewModel(
             it.copy(
                 feedbackMessages = feedbackMessageCache.snapshot().values.toList()
                     .reversed()
-            )
-        }
-    }
-
-    fun dismissPoorAccuracyNeedCalibratingDialogAndResumePositioning() {
-        _positioningActivityUiState.update {
-            it.copy(
-                isShowPoorAccuracyNeedCalibratingDialog = false
             )
         }
     }

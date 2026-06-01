@@ -30,7 +30,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
-import com.mapxus.positioning.api.positioning.DirectionAccuracy
+import com.mapxus.positioning.api.positioning.BearingAccuracy
 import com.mapxus.positioning.sample_app.ui.component.TextButton
 import com.mapxus.positioning.sample_app.ui.theme.MainGreen
 
@@ -41,7 +41,7 @@ import com.mapxus.positioning.sample_app.ui.theme.MainGreen
 @Preview
 @Composable
 fun PoorAccuracyNeedCalibratingDialog(
-    compassAccuracy: DirectionAccuracy = DirectionAccuracy.LOW,
+    compassAccuracy: BearingAccuracy = BearingAccuracy.LOW,
     onDismiss: () -> Unit = {},
 ) {
     DialogCard(onDismiss = onDismiss) {
@@ -67,8 +67,8 @@ fun PoorAccuracyNeedCalibratingDialog(
                 withStyle(
                     SpanStyle(
                         color = when (compassAccuracy) {
-                            DirectionAccuracy.HIGH -> MainGreen
-                            DirectionAccuracy.MEDIUM -> Color.Yellow
+                            BearingAccuracy.HIGH -> MainGreen
+                            BearingAccuracy.MEDIUM -> Color.Yellow
                             else -> Color.Red
                         }
                     )
@@ -76,7 +76,7 @@ fun PoorAccuracyNeedCalibratingDialog(
                     append(compassAccuracy.name)
                 }
             })
-            if (compassAccuracy == DirectionAccuracy.HIGH) {
+            if (compassAccuracy == BearingAccuracy.HIGH) {
                 TextButton(
                     modifier = Modifier
                         .padding(horizontal = 30.dp)
