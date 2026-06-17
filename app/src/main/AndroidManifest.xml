@@ -46,6 +46,7 @@
 
         <activity
             android:name="com.mapxus.positioning.sample_app.page.positioning.PositioningActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="true"
             android:label="@string/positioning">
             <meta-data
