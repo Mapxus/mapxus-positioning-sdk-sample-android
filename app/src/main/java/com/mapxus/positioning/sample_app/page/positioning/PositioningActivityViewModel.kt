@@ -246,6 +246,16 @@ class PositioningActivityViewModel(
      */
     fun stop() {
         clearCache()
+        //清空蓝点缓存
+        mapxusPositioningProvider.dispatchIndoorLocationChange(
+            IndoorLocation(
+                null,
+                null,
+                Location("MapxusPositioning").apply {
+                    latitude = 0.0
+                    longitude = 0.0
+                })
+        )
         mapxusPositioningClient.stop()
     }
 
