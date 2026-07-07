@@ -22,7 +22,7 @@ import com.mapxus.positioning.sample_app.ui.theme.AppTheme
 import com.mapxus.positioning.sample_app.utils.logI
 
 /**
- * 承载normal positioning and wheelchair sampling ui
+ * Hosts normal positioning and wheelchair sampling ui
  *
  */
 private const val TAG = "PositioningActivity"
@@ -41,14 +41,14 @@ open class PositioningActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        " ============================= 退出 PositioningActivity =============================".logI(
+        " ============================= Exit PositioningActivity =============================".logI(
             TAG
         )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        " ============================= 进入 PositioningActivity =============================".logI(
+        " ============================= Enter PositioningActivity =============================".logI(
             TAG
         )
         val title = "${getString(R.string.app_name)} ${com.mapxus.positioning.sample_app.BuildConfig.VERSION_NAME}"

@@ -67,12 +67,12 @@ class UploadLogActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        " ============================= 退出LogsActivity =============================".logD(TAG)
+        " ============================= Exit LogsActivity =============================".logD(TAG)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        " ============================= 进入LogsActivity =============================".logD(TAG)
+        " ============================= Enter LogsActivity =============================".logD(TAG)
         setContent {
             AppTheme {
                 MainContent(viewModel)

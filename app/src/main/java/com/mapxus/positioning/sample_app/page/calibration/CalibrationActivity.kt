@@ -25,13 +25,13 @@ class CalibrationActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        " ============================= 退出CalibrationActivity =============================".logI(
+        " ============================= Exit CalibrationActivity =============================".logI(
             TAG
         )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        " ============================= 进入CalibrationActivity =============================".logI(
+        " ============================= Enter CalibrationActivity =============================".logI(
             TAG
         )
 

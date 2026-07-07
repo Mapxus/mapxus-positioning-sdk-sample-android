@@ -35,13 +35,13 @@ class StepLengthConfigActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        " ============================= 退出 StepLengthConfigActivity =============================".logI(
+        " ============================= Exit StepLengthConfigActivity =============================".logI(
             TAG
         )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        " ============================= 进入 StepLengthConfigActivity =============================".logI(
+        " ============================= Enter StepLengthConfigActivity =============================".logI(
             TAG
         )
 

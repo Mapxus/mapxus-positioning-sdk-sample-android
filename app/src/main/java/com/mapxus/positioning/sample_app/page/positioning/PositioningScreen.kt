@@ -49,7 +49,7 @@ fun PositioningScreen(
 
     LifecycleEffect(
         onPause = {
-            //core sdk 方法 ，设置定位蓝点是否显示
+            //core sdk method, set whether the positioning blue dot is displayed
             mapxusMap?.setLocationEnabled(false)
             viewModel.stop()
         }
@@ -72,7 +72,7 @@ fun PositioningScreen(
         },
         onGetMapxusMap = {
             mapxusMap = it
-            //core sdk 方法 ，将对象设置进map中
+            //core sdk method, set the object into the map
             it.setLocationProvider(viewModel.mapxusPositioningProvider)
         },
     )
@@ -90,9 +90,9 @@ fun PositioningScreen(
             },
             onClickedStartPositionButton = {
                 mapxusMap?.removeMapxusPointAnnotations()
-                //core sdk 方法 ，设置定位蓝点是否显示
+                //core sdk method, set whether the positioning blue dot is displayed
                 mapxusMap?.setLocationEnabled(true)
-                //core sdk 方法 ，设置监听follow user mode 事件
+                //core sdk method, set listener for follow user mode event
                 mapxusMap?.addOnFollowUserModeChangedListener(viewModel.followUserModeChangedListener)
                 viewModel.startPositioning()
             },
@@ -100,9 +100,9 @@ fun PositioningScreen(
                 if (viewModel.customLocation != null) {
                     viewModel.isSettingCustomLocation(false)
                     mapxusMap?.removeMapxusPointAnnotations()
-                    //core sdk 方法 ，设置定位蓝点是否显示
+                    //core sdk method, set whether the positioning blue dot is displayed
                     mapxusMap?.setLocationEnabled(true)
-                    //core sdk 方法 ，设置监听follow user mode 事件
+                    //core sdk method, set listener for follow user mode event
                     mapxusMap?.addOnFollowUserModeChangedListener(viewModel.followUserModeChangedListener)
                     viewModel.startPositioning()
                     true
@@ -124,7 +124,7 @@ fun PositioningScreen(
             },
             onClickedStopPositionButton = {
                 mapxusMap?.removeMapxusPointAnnotations()
-                //core sdk 方法 ，设置定位蓝点是否显示
+                //core sdk method, set whether the positioning blue dot is displayed
                 mapxusMap?.setLocationEnabled(false)
                 viewModel.stop()
             },

@@ -44,7 +44,7 @@ private const val TAG = "PositioningActivityViewModel"
 /**
  * Positioning activity view model
  *
- * 处理数据相关
+ * Handles data-related logic
  *
  * @property context
  * @constructor Create empty Positioning activity view model
@@ -56,25 +56,25 @@ class PositioningActivityViewModel(
     /**
      * Mapxus positioning provider
      *
-     * core sdk 显示蓝点逻辑对象
+     * core sdk object for the blue dot display logic
      */
     val mapxusPositioningProvider: MapxusPositioningProvider = MapxusPositioningProvider()
 
     /**
      * Mapxus positioning client
      *
-     * 定位SDK Client
+     * Positioning SDK Client
      */
     private val mapxusPositioningClient: MapxusPositioningClient =
         MapxusPositioningClient.getInstance(context.applicationContext)
 
     /**
-     * 当前位置
+     * Current location
      */
     private var currentLocation: MapxusLocation? = null
 
     /**
-     * UI显示变化
+     * UI display changes
      */
     private val _positioningActivityUiState: MutableStateFlow<PositioningActivityUiState> =
         MutableStateFlow(PositioningActivityUiState())
@@ -83,14 +83,14 @@ class PositioningActivityViewModel(
     /**
      * Feedback message thread
      *
-     * 用于feedback信息展示的线程
+     * Thread used for displaying feedback messages
      */
     private val feedbackMessageThread = CoroutineScope(Dispatchers.Main)
 
     /**
      * Feedback message cache
      *
-     * 用于feedback信息展示的缓存
+     * Cache used for displaying feedback messages
      *
      */
     private val feedbackMessageCache = LruCache<Long, UserFeedbackInfo>(3)
@@ -98,21 +98,21 @@ class PositioningActivityViewModel(
     /**
      *  venue id to venueInfo
      *
-     *  场地信息缓存
+     *  Venue info cache
      */
     private val siteCache = LruCache<String, VenueInfo>(3)
 
     /**
      * Venue search
      *
-     * core sdk 搜索venue信息对象
+     * core sdk object for searching venue info
      */
     private val venueSearch: VenueSearch = VenueSearch.newInstance()
 
     /**
      * Follow user mode changed listener
      *
-     * core sdk 监听跟随模式变化
+     * core sdk listener for follow mode changes
      */
     val followUserModeChangedListener = MapxusMap.OnFollowUserModeChangedListener { p0 ->
         _positioningActivityUiState.update {
@@ -125,14 +125,14 @@ class PositioningActivityViewModel(
     /**
      * Custom location
      *
-     * 自定义位置缓存
+     * Custom location cache
      */
     var customLocation: MapxusLocation? = null
 
     init {
-        //添加监听器
+        //add listener
         mapxusPositioningClient.addPositioningListener(this)
-        //更新缓存
+        //update cache
         viewModelScope.launch {
             val preferences = context.applicationContext.appSettingDataStore.data.first()
 
@@ -153,7 +153,7 @@ class PositioningActivityViewModel(
     /**
      * Update user mode
      *
-     * 更新用户模式缓存
+     * Update user mode cache
      *
      * @param userMode
      */
@@ -171,7 +171,7 @@ class PositioningActivityViewModel(
      *
      */
     fun startPositioning() {
-        //设置当前用户模式
+        //set current user mode
         mapxusPositioningClient.setUserMode(positioningActivityUiState.value.userMode)
         "start customLocation: $customLocation ".logI(TAG)
         val location = customLocation
@@ -185,7 +185,7 @@ class PositioningActivityViewModel(
     /**
      * Toggle positioning mode
      *
-     * 切换用户模式并更新缓存
+     * Switch user mode and update cache
      *
      */
     fun togglePositioningMode() {
@@ -206,7 +206,7 @@ class PositioningActivityViewModel(
     /**
      * Is setting custom location
      *
-     * 更新是否正在自定义位置状态
+     * Update whether currently setting a custom location
      *
      * @param isSetting
      */
@@ -221,7 +221,7 @@ class PositioningActivityViewModel(
     /**
      * Is setting custom location
      *
-     * 是否正在自定义位置状态
+     * Whether currently setting a custom location
      *
      * @return
      */
@@ -232,7 +232,7 @@ class PositioningActivityViewModel(
     /**
      * Clear cache
      *
-     * 清理缓存
+     * Clear cache
      *
      */
     fun clearCache() {
@@ -242,11 +242,11 @@ class PositioningActivityViewModel(
     /**
      * Stop
      *
-     * 停止定位
+     * Stop positioning
      */
     fun stop() {
         clearCache()
-        //清空蓝点缓存
+        //clear blue dot cache
         mapxusPositioningProvider.dispatchIndoorLocationChange(
             IndoorLocation(
                 null,
@@ -262,7 +262,7 @@ class PositioningActivityViewModel(
     /**
      * Refresh location
      *
-     * 刷新位置
+     * Refresh location
      *
      * @return
      */
@@ -273,7 +273,7 @@ class PositioningActivityViewModel(
     /**
      * On cleared
      *
-     * view model 触发
+     * Triggered by the view model
      *
      */
     override fun onCleared() {
@@ -294,7 +294,7 @@ class PositioningActivityViewModel(
     }
 
     override fun onBearingChange(bearing: Float) {
-        //更新蓝点方向
+        //update blue dot bearing
         mapxusPositioningProvider.dispatchCompassChange(bearing, 0)
     }
 
@@ -335,7 +335,7 @@ class PositioningActivityViewModel(
             )
         }
 
-        //处理蓝点位置更新
+        //handle blue dot location update
         val theLocation = Location("MapxusPositioning")
         theLocation.latitude = location.latitude
         theLocation.longitude = location.longitude
@@ -349,7 +349,7 @@ class PositioningActivityViewModel(
         }
         val indoorLocation = IndoorLocation(building, floorInfo, theLocation)
         indoorLocation.accuracy = location.accuracy
-        //分发
+        //dispatch
         mapxusPositioningProvider.dispatchIndoorLocationChange(indoorLocation)
     }
 
@@ -367,7 +367,7 @@ class PositioningActivityViewModel(
     /**
      * Update site info
      *
-     * 更新场地信息
+     * Update venue info
      *
      * @param mapxusLocation
      */
@@ -429,7 +429,7 @@ class PositioningActivityViewModel(
     /**
      * Update feedback message
      *
-     * 更新feedback信息
+     * Update feedback message
      *
      */
     private fun updateFeedbackMessage() {

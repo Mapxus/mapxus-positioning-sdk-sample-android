@@ -114,7 +114,7 @@ class ClientApiActivity : AppCompatActivity() {
                 })
             } catch (_: Exception) {
                 try {
-                    startActivityLauncher.launch(Intent("com.android.settings.APPLICATION_DEVELOPMENT_SETTINGS")) //部分手机采用这种方式跳转
+                    startActivityLauncher.launch(Intent("com.android.settings.APPLICATION_DEVELOPMENT_SETTINGS")) //Some phones use this way to navigate
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

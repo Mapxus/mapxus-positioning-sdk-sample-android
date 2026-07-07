@@ -7,7 +7,7 @@ private const val TAG = "MapxusPositioningProvider"
 /**
  * Mapxus positioning provider
  *
- * core sdk 控制显示蓝点
+ * core sdk object that controls displaying the blue dot
  *
  * @constructor Create empty Mapxus positioning provider
  */

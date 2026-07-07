@@ -12,7 +12,7 @@ import android.provider.Settings
  */
 object DeviceUtils {
     /**
-     * wifi 节流是否开启
+     * Whether wifi throttling is enabled
      * @param context
      * @return
      */
